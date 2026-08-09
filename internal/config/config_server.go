@@ -1,144 +1,239 @@
+// Package config parsing passed config values
 package config
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
-	"log"
+	"os"
 
 	"github.com/caarlos0/env/v6"
+	"go.uber.org/zap"
 )
 
-// OptionsServer TODO: implement a clean option separation
+// OptionsServer configuration parameters for the GophKeeper server.
+//
+// Values' order of precedence: environment vars, command-line flags, config file, defaults.
 type OptionsServer struct {
-	ServerAddress          OptionalString `env:"RUN_ADDRESS"`
-	AccrualAddress         OptionalString `env:"ACCRUAL_SYSTEM_ADDRESS"`
-	AccrualPollingInterval OptionalInt    `env:"ACCRUAL_POLLING_INTERVAL"`
+	ServerAddress OptionalString `env:"RUN_ADDRESS" json:"server_address"`
+	DatabaseURI   OptionalString `env:"DATABASE_URI" json:"database_uri"`
 
-	DatabaseURI OptionalString `env:"DATABASE_URI"`
+	MigrationsFolder OptionalString `env:"MIGRATIONS_FOLDER" json:"migrations_folder"`
+	AuthTokenSecret  OptionalString `env:"AUTH_TOKEN_SECRET" json:"auth_token_secret"`
 
-	MigrationsFolder OptionalString `env:"MIGRATIONS_FOLDER"`
+	Config OptionalString `env:"CONFIG" json:"-"`
 
-	AuthTokenSecret OptionalString `env:"AUTH_TOKEN_SECRET"`
+	logger *zap.Logger
 }
 
 func logSetFlagsServer(options *OptionsServer) {
 	if options == nil {
 		return
 	}
-	var setFlags []string
+
+	fields := make([]zap.Field, 0)
 
 	if options.ServerAddress.BeenSet {
-		setFlags = append(setFlags, fmt.Sprintf("-a=%s", options.ServerAddress.Value))
-	}
-
-	if options.AccrualAddress.BeenSet {
-		setFlags = append(setFlags, fmt.Sprintf("-r=%s", options.AccrualAddress.Value))
+		fields = append(fields, zap.String("-a", options.ServerAddress.Value))
 	}
 
 	if options.DatabaseURI.BeenSet {
-		setFlags = append(setFlags, fmt.Sprintf("-d=%s", options.DatabaseURI.Value))
+		fields = append(fields, zap.String("-d", options.DatabaseURI.Value))
 	}
 
 	if options.MigrationsFolder.BeenSet {
-		setFlags = append(setFlags, fmt.Sprintf("-m=%s", options.MigrationsFolder.Value))
+		fields = append(fields, zap.String("-m", options.MigrationsFolder.Value))
 	}
 
 	if options.AuthTokenSecret.BeenSet {
-		setFlags = append(setFlags, fmt.Sprintf("-s=%s", options.AuthTokenSecret.Value))
+		fields = append(fields, zap.String("-s", options.AuthTokenSecret.Value))
 	}
 
-	if options.AccrualPollingInterval.BeenSet {
-		setFlags = append(setFlags, fmt.Sprintf("-i=%d", options.AccrualPollingInterval.Value))
+	if options.Config.BeenSet {
+		fields = append(fields, zap.String("-config", options.Config.Value))
 	}
 
-	if len(setFlags) == 0 {
-		log.Println("no command-line flags were set")
+	if len(fields) == 0 {
+		options.logger.Info("no command-line flags were set")
 		return
 	}
 
-	for _, flagValue := range setFlags {
-		log.Printf("command-line flag set: %s", flagValue)
-	}
+	options.logger.Info("command line options", fields...)
 }
 
 func logSetEnvServer(options *OptionsServer) {
 	if options == nil {
 		return
 	}
-	var setEnv []string
+
+	fields := make([]zap.Field, 0)
 
 	if options.ServerAddress.BeenSet {
-		setEnv = append(setEnv, fmt.Sprintf("ADDRESS=%s", options.ServerAddress.Value))
-	}
-
-	if options.AccrualAddress.BeenSet {
-		setEnv = append(setEnv, fmt.Sprintf("ACCRUAL_ADDRESS=%s", options.AccrualAddress.Value))
+		fields = append(fields, zap.String("RUN_ADDRESS", options.ServerAddress.Value))
 	}
 
 	if options.DatabaseURI.BeenSet {
-		setEnv = append(setEnv, fmt.Sprintf("DATABASE_URI=%s", options.DatabaseURI.Value))
+		fields = append(fields, zap.String("DATABASE_URI", options.DatabaseURI.Value))
 	}
 
 	if options.MigrationsFolder.BeenSet {
-		setEnv = append(setEnv, fmt.Sprintf("MIGRATIONS_FOLDER=%s", options.MigrationsFolder.Value))
+		fields = append(fields, zap.String(
+			"MIGRATIONS_FOLDER",
+			options.MigrationsFolder.Value,
+		))
 	}
 
 	if options.AuthTokenSecret.BeenSet {
-		setEnv = append(setEnv, fmt.Sprintf("AUTH_TOKEN_SECRET=%s", options.AuthTokenSecret.Value))
+		fields = append(fields, zap.String(
+			"AUTH_TOKEN_SECRET",
+			options.AuthTokenSecret.Value,
+		))
 	}
 
-	if options.AccrualPollingInterval.BeenSet {
-		setEnv = append(setEnv, fmt.Sprintf("ACCRUAL_POLLING_INTERVAL=%d", options.AccrualPollingInterval.Value))
+	if options.Config.BeenSet {
+		fields = append(fields, zap.String("CONFIG", options.Config.Value))
 	}
 
-	if len(setEnv) == 0 {
-		log.Println("no environment variables were set")
+	if len(fields) == 0 {
+		options.logger.Info("no environment variables were set")
 		return
 	}
 
-	for _, envValue := range setEnv {
-		log.Printf("environment variable set: %s", envValue)
-	}
+	options.logger.Info("environment variables", fields...)
 }
 
-func ReadFlagsServer(args []string) *OptionsServer {
-	cmdOptions, err := getOptionsServer(args)
+func logConfigOptionsServer(options *OptionsServer) {
+	if options == nil {
+		return
+	}
+
+	fields := make([]zap.Field, 0)
+
+	if options.ServerAddress.BeenSet {
+		fields = append(fields, zap.String("server_address", options.ServerAddress.Value))
+	}
+
+	if options.DatabaseURI.BeenSet {
+		fields = append(fields, zap.String("database_uri", options.DatabaseURI.Value))
+	}
+
+	if options.MigrationsFolder.BeenSet {
+		fields = append(fields, zap.String(
+			"migrations_folder",
+			options.MigrationsFolder.Value,
+		))
+	}
+
+	if options.AuthTokenSecret.BeenSet {
+		fields = append(fields, zap.String(
+			"auth_token_secret",
+			options.AuthTokenSecret.Value,
+		))
+	}
+
+	if len(fields) == 0 {
+		options.logger.Info("no config file options were set")
+		return
+	}
+
+	options.logger.Info("config file options", fields...)
+}
+
+// ReadFlagsServer reads server configuration from command-line arguments and environment variables.
+//
+// Precedence: environment variables, command-line flags, config file, defaults.
+func ReadFlagsServer(args []string, logger *zap.Logger) (*OptionsServer, error) {
+	if logger == nil {
+		panic("config server logger is nil")
+	}
+
+	cmdOptions, err := getOptionsServer(args, logger)
 	if err != nil {
-		log.Fatalln(err)
+		return nil, fmt.Errorf("read command-line flags: %w", err)
 	}
 	logSetFlagsServer(cmdOptions)
 
-	envOptions := getEnvOptions()
+	envOptions, err := getEnvOptionsServer(logger)
+	if err != nil {
+		return nil, fmt.Errorf("read environment variables: %w", err)
+	}
 	logSetEnvServer(envOptions)
 
-	finalOptions := OptionsServer{
-		ServerAddress:          OptionalString{Value: "localhost:8080", BeenSet: false},
-		AccrualAddress:         OptionalString{Value: "", BeenSet: false},
-		AccrualPollingInterval: OptionalInt{Value: 3, BeenSet: false},
-		DatabaseURI: OptionalString{Value: "postgres://default_user:default_password@localhost:5432/gophkeeper_db?sslmode=disable",
-			BeenSet: false},
-		MigrationsFolder: OptionalString{Value: "./migrations", BeenSet: false},
-		AuthTokenSecret:  OptionalString{Value: "super-duper-secret-dev-change-in-prod", BeenSet: false},
+	var diskConfigOptions OptionsServer
+	if cmdOptions.Config.BeenSet || envOptions.Config.BeenSet {
+		// We need to read the config file before assembling the full consensus.
+		var configFilename string
+
+		if envOptions.Config.BeenSet && envOptions.Config.Value != "" {
+			configFilename = envOptions.Config.Value
+		} else if cmdOptions.Config.BeenSet && cmdOptions.Config.Value != "" {
+			configFilename = cmdOptions.Config.Value
+		}
+
+		diskConfigOptions, err = getDiskConfigOptionsServer(configFilename, logger)
+		if err != nil {
+			return nil, fmt.Errorf("read config file: %w", err)
+		}
+
+		logConfigOptionsServer(&diskConfigOptions)
 	}
 
-	// env options are the priority
+	finalOptions := OptionsServer{
+		ServerAddress: OptionalString{Value: "localhost:8080", BeenSet: false},
+		DatabaseURI: OptionalString{
+			Value:   "postgres://default_user:default_password@localhost:5432/gophkeeper_db?sslmode=disable",
+			BeenSet: false,
+		},
+		MigrationsFolder: OptionalString{
+			Value:   "./migrations",
+			BeenSet: false,
+		},
+		AuthTokenSecret: OptionalString{
+			Value:   "super-duper-secret-dev-change-in-prod",
+			BeenSet: false,
+		},
+		Config: OptionalString{
+			Value:   "",
+			BeenSet: false,
+		},
+		logger: logger,
+	}
+
+	// Environment options have the highest priority,
+	// then command-line options, then disk config options.
+	mergeOptionsServer(&finalOptions, diskConfigOptions)
 	mergeOptionsServer(&finalOptions, *cmdOptions)
 	mergeOptionsServer(&finalOptions, *envOptions)
 
-	//setOptionsTrue(&finalOptions)
-	return &finalOptions
+	return &finalOptions, nil
+}
+
+func getDiskConfigOptionsServer(filename string, logger *zap.Logger) (OptionsServer, error) {
+	if filename == "" {
+		return OptionsServer{logger: logger}, nil
+	}
+
+	configBytes, err := os.ReadFile(filename)
+	if err != nil {
+		return OptionsServer{logger: logger}, err
+	}
+
+	options := OptionsServer{
+		logger: logger,
+	}
+
+	if err = json.Unmarshal(configBytes, &options); err != nil {
+		return OptionsServer{logger: logger}, err
+	}
+
+	return options, nil
 }
 
 func mergeOptionsServer(mergeInto *OptionsServer, newValues OptionsServer) {
 	if newValues.ServerAddress.BeenSet {
 		mergeInto.ServerAddress = newValues.ServerAddress
 		mergeInto.ServerAddress.BeenSet = true
-	}
-
-	if newValues.AccrualAddress.BeenSet {
-		mergeInto.AccrualAddress = newValues.AccrualAddress
-		mergeInto.AccrualAddress.BeenSet = true
 	}
 
 	if newValues.DatabaseURI.BeenSet {
@@ -156,37 +251,38 @@ func mergeOptionsServer(mergeInto *OptionsServer, newValues OptionsServer) {
 		mergeInto.AuthTokenSecret.BeenSet = true
 	}
 
-	if newValues.AccrualPollingInterval.BeenSet {
-		mergeInto.AccrualPollingInterval = newValues.AccrualPollingInterval
-		mergeInto.AccrualPollingInterval.BeenSet = true
+	if newValues.Config.BeenSet {
+		mergeInto.Config = newValues.Config
+		mergeInto.Config.BeenSet = true
 	}
-
 }
 
-func getEnvOptions() *OptionsServer {
-	var opt OptionsServer
-	err := env.Parse(&opt)
-	if err != nil {
-		log.Fatalln(err)
+func getEnvOptionsServer(logger *zap.Logger) (*OptionsServer, error) {
+	opt := OptionsServer{
+		logger: logger,
 	}
-	return &opt
+
+	if err := env.Parse(&opt); err != nil {
+		return nil, err
+	}
+
+	return &opt, nil
 }
 
-func getOptionsServer(args []string) (*OptionsServer, error) {
+func getOptionsServer(args []string, logger *zap.Logger) (*OptionsServer, error) {
+	opt := &OptionsServer{
+		logger: logger,
+	}
 
-	opt := &OptionsServer{}
-
-	fs := flag.NewFlagSet("metrics-aggregator-server", flag.ContinueOnError)
-	fs.SetOutput(io.Discard) // optional: silence flag errors in tests
+	fs := flag.NewFlagSet("gophkeeper-server", flag.ContinueOnError)
+	fs.SetOutput(io.Discard)
 
 	fs.Var(&opt.ServerAddress, "a", "адрес и порт запуска этого сервера")
-	fs.Var(&opt.AccrualAddress, "r", "адрес и порт запуска сервера расчета баллов лояльности")
-	fs.Var(&opt.AccrualAddress, "i", "частота поллинга сервера расчета баллов лояльности")
-
 	fs.Var(&opt.DatabaseURI, "d", "connection string/dsn для postgres базы данных")
-
 	fs.Var(&opt.MigrationsFolder, "m", "относительный путь до миграций, например ./migrations")
 	fs.Var(&opt.AuthTokenSecret, "s", "секретный ключ для генерации токенов авторизации")
+	fs.Var(&opt.Config, "config", "путь до файла с конфигурацией приложения")
+	fs.Var(&opt.Config, "c", "путь до файла с конфигурацией приложения")
 
 	if err := fs.Parse(args); err != nil {
 		return nil, err

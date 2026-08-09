@@ -18,9 +18,9 @@ func main() {
 	}
 	defer lg.Sync() // flushes buffer, if any
 
-	currentConfig := config.ReadFlagsServer(os.Args[1:])
-	if currentConfig == nil {
-		lg.Fatal("failed to read config")
+	currentConfig, err := config.ReadFlagsServer(os.Args[1:], lg)
+	if err != nil {
+		lg.Fatal("failed to read config" + err.Error())
 		return
 	}
 	lg.Info("starting server ", zap.String("Server addr", currentConfig.ServerAddress.Value))

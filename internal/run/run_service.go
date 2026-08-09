@@ -17,7 +17,7 @@ import (
 func Run(ctx context.Context, db domain.GophkeeperRepository, cfg *config.OptionsServer, logger *zap.Logger) error {
 
 	srvApp := service.NewMetricsService(db,
-		cfg.AuthTokenSecret.Value, cfg.AccrualPollingInterval.Value)
+		cfg.AuthTokenSecret.Value)
 
 	h := handler.NewHandler(srvApp, logger)
 	r := handler.NewRouter(h, cfg)
