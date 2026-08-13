@@ -13,17 +13,15 @@ import (
 func TestWithAuth(t *testing.T) {
 	secret := []byte("test-secret")
 
-	// A real, valid token for user 42, signed with the correct secret.
 	validToken, err := helpers.CreateAuthToken(42, secret)
 	require.NoError(t, err)
 
-	// A token signed with a DIFFERENT secret — signature must fail to verify.
 	wrongSecretToken, err := helpers.CreateAuthToken(42, []byte("some-other-secret"))
 	require.NoError(t, err)
 
 	tests := []struct {
 		name           string
-		authHeader     string // exact Authorization header value; "" means header absent
+		authHeader     string // "" means header absent
 		setHeader      bool
 		wantStatus     int
 		wantNextCalled bool
@@ -45,7 +43,7 @@ func TestWithAuth(t *testing.T) {
 		},
 		{
 			name:           "missing Bearer prefix is rejected",
-			authHeader:     validToken, // token present but no "Bearer " prefix
+			authHeader:     validToken, // no "Bearer " prefix
 			setHeader:      true,
 			wantStatus:     http.StatusUnauthorized,
 			wantNextCalled: false,
