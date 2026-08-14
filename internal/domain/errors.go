@@ -12,3 +12,4 @@ var ErrOrderEmpty = fmt.Errorf("empty order number")
 var ErrNotEnoughMoney = fmt.Errorf("order not found")
 
 var ErrSecretAlreadyExists = fmt.Errorf("secret already exists")
+var ErrInvalidSecretType = fmt.Errorf("invalid secret type")

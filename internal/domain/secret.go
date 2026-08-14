@@ -9,3 +9,11 @@ type CreateSecretParams struct {
 	Payload []byte
 	Meta    []byte
 }
+
+// no UserID — that comes from the token.
+type CreateSecretRequest struct {
+	ID      uuid.UUID  `json:"id"`
+	Type    SecretType `json:"type"`
+	Payload []byte     `json:"payload"`
+	Meta    []byte     `json:"meta,omitempty"`
+}
