@@ -10,3 +10,5 @@ var ErrInvalidSum = fmt.Errorf("invalid order sum")
 var ErrOrderEmpty = fmt.Errorf("empty order number")
 
 var ErrNotEnoughMoney = fmt.Errorf("order not found")
+
+var ErrSecretAlreadyExists = fmt.Errorf("secret already exists")

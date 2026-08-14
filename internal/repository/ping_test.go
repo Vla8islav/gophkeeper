@@ -6,10 +6,12 @@ import (
 
 	"github.com/Vla8islav/gophkeeper/internal/config"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 )
 
 func TestPostgresStorage_Ping(t *testing.T) {
-	cfg := config.ReadFlagsServer(nil)
+	logger := zap.NewNop()
+	cfg, _ := config.ReadFlagsServer(nil, logger)
 	storage := InitTestPostgresStorage(t, cfg)
 
 	ctx := context.Background()
