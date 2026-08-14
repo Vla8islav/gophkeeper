@@ -90,7 +90,7 @@ func doJSON(t *testing.T, srv *httptest.Server, method, path, token string, body
 func TestE2E_RegisterLoginCreateSecret(t *testing.T) {
 	srv := newTestServer(t)
 
-	// 1. Register → 200 + token.
+	// 1. Register - 200 + token.
 	resp := doJSON(t, srv, http.MethodPost, "/api/user/register", "",
 		[]byte(`{"login":"e2e-user","password":"e2e-pass"}`))
 	require.Equal(t, http.StatusOK, resp.StatusCode)
@@ -99,7 +99,7 @@ func TestE2E_RegisterLoginCreateSecret(t *testing.T) {
 	resp.Body.Close()
 	require.NotEmpty(t, reg.Token)
 
-	// 2. Log in with the same creds → 200 + a fresh token.
+	// 2. Log in with the same creds - 200 + a fresh token.
 	resp = doJSON(t, srv, http.MethodPost, "/api/user/login", "",
 		[]byte(`{"login":"e2e-user","password":"e2e-pass"}`))
 	require.Equal(t, http.StatusOK, resp.StatusCode)
@@ -109,7 +109,7 @@ func TestE2E_RegisterLoginCreateSecret(t *testing.T) {
 	require.NotEmpty(t, login.Token)
 	token := login.Token
 
-	// 3. Create a secret WITH the token → 201. (Exercises WithAuth + context userID + insert.)
+	// 3. Create a secret WITH the token - 201. (Exercises WithAuth + context userID + insert.)
 	secretID := uuid.New()
 	createBody, err := json.Marshal(domain.CreateSecretRequest{
 		ID:      secretID,
@@ -122,23 +122,23 @@ func TestE2E_RegisterLoginCreateSecret(t *testing.T) {
 	require.Equal(t, http.StatusCreated, resp.StatusCode)
 	resp.Body.Close()
 
-	// 4. Same request WITHOUT a token → 401. (This is the check that catches
+	// 4. Same request WITHOUT a token - 401. (This is the check that catches
 	//    the "mounted outside the auth group" wiring bug.)
 	resp = doJSON(t, srv, http.MethodPost, "/api/secret/create", "", createBody)
 	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 	resp.Body.Close()
 
-	// 5. Re-create the SAME id → 409 (duplicate).
+	// 5. Re-create the SAME id - 409 (duplicate).
 	resp = doJSON(t, srv, http.MethodPost, "/api/secret/create", token, createBody)
 	require.Equal(t, http.StatusConflict, resp.StatusCode)
 	resp.Body.Close()
 
-	// 6. Garbage token → 401.
+	// 6. Garbage token - 401.
 	resp = doJSON(t, srv, http.MethodPost, "/api/secret/create", "not-a-real-token", createBody)
 	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 	resp.Body.Close()
 
-	// 7. Read the secret back → 200, payload round-trips.
+	// 7. Read the secret back - 200, payload round-trips.
 	resp = doJSON(t, srv, http.MethodGet, "/api/secret/get/"+secretID.String(), token, nil)
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 	var got domain.GetSecretResponse
@@ -146,9 +146,9 @@ func TestE2E_RegisterLoginCreateSecret(t *testing.T) {
 	resp.Body.Close()
 	require.Equal(t, secretID, got.ID)
 	require.Equal(t, domain.SecretTypeText, got.Type)
-	require.Equal(t, []byte("hello"), got.Payload) // base64 → []byte round-trip
+	require.Equal(t, []byte("hello"), got.Payload) // base64 - []byte round-trip
 
-	// 8. A second user must NOT see it → 404 (ownership isolation, full stack).
+	// 8. A second user must NOT see it - 404 (ownership isolation, full stack).
 	resp = doJSON(t, srv, http.MethodPost, "/api/user/register", "",
 		[]byte(`{"login":"e2e-intruder","password":"pw"}`))
 	require.Equal(t, http.StatusOK, resp.StatusCode)
@@ -185,9 +185,9 @@ func TestE2E_RegisterLoginCreateSecret(t *testing.T) {
 	rawBody, err := io.ReadAll(resp.Body) // read raw, not decode
 	require.NoError(t, err)
 	resp.Body.Close()
-	require.Equal(t, "[]", string(rawBody)) // proves nil→[] survives the full stack
+	require.Equal(t, "[]", string(rawBody)) // proves nil-[] survives the full stack
 
-	// L3. Requesting the list without a token → 401.
+	// L3. Requesting the list without a token - 401.
 	resp = doJSON(t, srv, http.MethodGet, "/api/secret/list", "", nil)
 	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 	resp.Body.Close()

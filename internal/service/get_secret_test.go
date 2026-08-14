@@ -43,7 +43,7 @@ func TestGophkeeperService_GetSecret_NilID(t *testing.T) {
 	repository := mocks.NewMockGophkeeperRepository(ctrl)
 	svc := gophkeeperService{repository: repository}
 
-	// No EXPECT → the repo must never be called when the id is invalid.
+	// No EXPECT - the repo must never be called when the id is invalid.
 	got, err := svc.GetSecret(context.Background(), 42, uuid.Nil)
 	require.ErrorIs(t, err, domain.ErrInvalidSecretID)
 	require.Nil(t, got)

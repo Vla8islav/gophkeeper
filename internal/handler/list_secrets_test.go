@@ -22,7 +22,7 @@ func TestListSecretsHandler_Success(t *testing.T) {
 
 	id1, id2 := uuid.New(), uuid.New()
 	service.EXPECT().
-		ListSecrets(gomock.Any(), userID). // pins userID → proves context extraction + forwarding
+		ListSecrets(gomock.Any(), userID). // pins userID - proves context extraction + forwarding
 		Return([]domain.SecretSummary{
 			{ID: id1, Type: domain.SecretTypeText, Meta: []byte("m1"), Version: 1},
 			{ID: id2, Type: domain.SecretTypeCard, Version: 2},
@@ -55,7 +55,7 @@ func TestListSecretsHandler_EmptyReturnsJSONArray(t *testing.T) {
 
 	service.EXPECT().
 		ListSecrets(gomock.Any(), userID).
-		Return(nil, nil) // empty vault → repo/service return nil
+		Return(nil, nil) // empty vault - repo/service return nil
 
 	req := httptest.NewRequest(http.MethodGet, "/api/secret/list", nil)
 	req = req.WithContext(middlewares.ContextWithUserID(req.Context(), userID))
@@ -76,7 +76,7 @@ func TestListSecretsHandler_EmptyReturnsJSONArray(t *testing.T) {
 func TestListSecretsHandler_MissingUserID(t *testing.T) {
 	h, _ := newTestHandler(t)
 
-	// No EXPECT → service must never be called when context lacks a user id.
+	// No EXPECT - service must never be called when context lacks a user id.
 	req := httptest.NewRequest(http.MethodGet, "/api/secret/list", nil)
 	// deliberately no ContextWithUserID
 	w := httptest.NewRecorder()

@@ -12,5 +12,6 @@ type GophkeeperRepository interface {
 	CreateSecret(ctx context.Context, user CreateSecretParams) error
 	GetUserByLogin(ctx context.Context, login string) (*User, error)
 	ListSecrets(ctx context.Context, userID int64) ([]SecretSummary, error)
+	UpdateSecret(ctx context.Context, params UpdateSecretParams) (int64, error)
 	GetSecret(ctx context.Context, userID int64, id uuid.UUID) (*Secret, error)
 }

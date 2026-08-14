@@ -60,3 +60,11 @@ type SecretSummaryResponse struct {
 	CreatedAt time.Time  `json:"created_at"`
 	UpdatedAt time.Time  `json:"updated_at"`
 }
+
+type UpdateSecretParams struct {
+	ID      uuid.UUID
+	UserID  int64
+	Payload []byte
+	Meta    []byte
+	Version int64 // the version the client last saw
+}

@@ -86,7 +86,7 @@ func TestPostgresStorage_CreateSecret_DuplicateID(t *testing.T) {
 	err := storage.CreateSecret(ctx, params)
 	require.NoError(t, err)
 
-	// Same UUID again → ON CONFLICT DO NOTHING → no row returned → domain error.
+	// Same UUID again - ON CONFLICT DO NOTHING - no row returned - domain error.
 	err = storage.CreateSecret(ctx, params)
 	require.ErrorIs(t, err, domain.ErrSecretAlreadyExists)
 }

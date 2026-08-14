@@ -70,7 +70,7 @@ func TestGophkeeperService_CreateSecret_ValidationErrors(t *testing.T) {
 			repository := mocks.NewMockGophkeeperRepository(ctrl)
 			svc := gophkeeperService{repository: repository}
 
-			// No EXPECT on CreateSecret → gomock fails the test if the repo is called
+			// No EXPECT on CreateSecret - gomock fails the test if the repo is called
 			err := svc.CreateSecret(context.Background(), 42, tt.req)
 			require.ErrorIs(t, err, domain.ErrInvalidSecretType)
 		})
