@@ -130,6 +130,21 @@ func (mr *MockGophkeeperRepositoryMockRecorder) Ping(ctx any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ping", reflect.TypeOf((*MockGophkeeperRepository)(nil).Ping), ctx)
 }
 
+// UpdateSecret mocks base method.
+func (m *MockGophkeeperRepository) UpdateSecret(ctx context.Context, params domain.UpdateSecretParams) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateSecret", ctx, params)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateSecret indicates an expected call of UpdateSecret.
+func (mr *MockGophkeeperRepositoryMockRecorder) UpdateSecret(ctx, params any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSecret", reflect.TypeOf((*MockGophkeeperRepository)(nil).UpdateSecret), ctx, params)
+}
+
 // MockGophkeeperService is a mock of GophkeeperService interface.
 type MockGophkeeperService struct {
 	ctrl     *gomock.Controller
@@ -240,4 +255,19 @@ func (m *MockGophkeeperService) Ping(ctx context.Context) error {
 func (mr *MockGophkeeperServiceMockRecorder) Ping(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ping", reflect.TypeOf((*MockGophkeeperService)(nil).Ping), ctx)
+}
+
+// UpdateSecret mocks base method.
+func (m *MockGophkeeperService) UpdateSecret(ctx context.Context, userID int64, id uuid.UUID, req domain.UpdateSecretRequest) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateSecret", ctx, userID, id, req)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateSecret indicates an expected call of UpdateSecret.
+func (mr *MockGophkeeperServiceMockRecorder) UpdateSecret(ctx, userID, id, req any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSecret", reflect.TypeOf((*MockGophkeeperService)(nil).UpdateSecret), ctx, userID, id, req)
 }

@@ -66,5 +66,11 @@ type UpdateSecretParams struct {
 	UserID  int64
 	Payload []byte
 	Meta    []byte
-	Version int64 // the version the client last saw
+	Version int64
+}
+
+type UpdateSecretRequest struct {
+	Payload []byte `json:"payload"`
+	Meta    []byte `json:"meta,omitempty"`
+	Version int64  `json:"version"`
 }
