@@ -41,7 +41,7 @@ func Run(ctx context.Context, db domain.GophkeeperRepository, cfg *config.Option
 		_ = srv.Shutdown(shutdownCtx)
 	}()
 
-	err := srv.ListenAndServe()
+	err := srv.ListenAndServeTLS(cfg.PublicCertKey.Value, cfg.PrivateKey.Value)
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}

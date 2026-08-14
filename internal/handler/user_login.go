@@ -74,8 +74,8 @@ func (h *Handler) UserLoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	authResult, err := h.service.LoginUser(r.Context(), requestBodySerialised)
-	if errors.Is(err, repository.ErrUserNotFound) {
-		h.writeUnauthorised(w, err.Error())
+	if errors.Is(err, repository.ErrUserNotFound) || errors.Is(err, domain.ErrInvalidUserCredentials) {
+		h.writeUnauthorised(w, "invalid user login or password")
 		return
 	}
 
@@ -84,14 +84,17 @@ func (h *Handler) UserLoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// write an auth cookie
-	http.SetCookie(w, &http.Cookie{
-		Name:     "auth_token",
-		Value:    authResult.Token,
-		Path:     "/",
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-	})
+	loginResponse := domain.UserLoginResponse{Token: authResult.Token}
+	payload, err := json.Marshal(loginResponse)
+	if err != nil {
+		h.writeInternalServerError(w, err.Error())
+		return
+	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(payload)
+	if err != nil {
+		return
+	}
 }

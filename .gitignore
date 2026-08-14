@@ -28,4 +28,6 @@ vendor/
 storage.dat
 audit.log
 
-load-testing/perf-*
+load-testing/perf-*certs/
+
+certs/*

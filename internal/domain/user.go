@@ -7,6 +7,12 @@ type UserRegisterRequest struct {
 
 type UserLoginRequest UserRegisterRequest
 
+type UserLoginResponse struct {
+	Token string `json:"token"`
+}
+
+type UserRegisterResponse UserLoginResponse
+
 type CreateUserParams struct {
 	Login        string
 	PasswordHash string

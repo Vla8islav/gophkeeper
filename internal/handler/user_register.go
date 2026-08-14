@@ -86,14 +86,17 @@ func (h *Handler) UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// write an auth cookie
-	http.SetCookie(w, &http.Cookie{
-		Name:     "auth_token",
-		Value:    authResult.Token,
-		Path:     "/",
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-	})
+	loginResponse := domain.UserRegisterResponse{Token: authResult.Token}
+	payload, err := json.Marshal(loginResponse)
+	if err != nil {
+		h.writeInternalServerError(w, err.Error())
+		return
+	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(payload)
+	if err != nil {
+		return
+	}
 }
