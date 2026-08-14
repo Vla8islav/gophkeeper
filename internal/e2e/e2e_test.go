@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -157,5 +158,37 @@ func TestE2E_RegisterLoginCreateSecret(t *testing.T) {
 
 	resp = doJSON(t, srv, http.MethodGet, "/api/secret/get/"+secretID.String(), intruder.Token, nil)
 	require.Equal(t, http.StatusNotFound, resp.StatusCode) // not 403 — non-leaky
+	resp.Body.Close()
+
+	// --- List path ---
+
+	// L1. The owner's list contains the created secret, metadata only.
+	resp = doJSON(t, srv, http.MethodGet, "/api/secret/list", token, nil)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	var list []domain.SecretSummaryResponse
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&list))
+	resp.Body.Close()
+	require.Len(t, list, 1)
+	require.Equal(t, secretID, list[0].ID)
+	require.Equal(t, domain.SecretTypeText, list[0].Type)
+
+	// L2. A brand-new user gets an empty list — and it must be [] , not null.
+	resp = doJSON(t, srv, http.MethodPost, "/api/user/register", "",
+		[]byte(`{"login":"e2e-list-other","password":"pw"}`))
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	var other domain.UserRegisterResponse
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&other))
+	resp.Body.Close()
+
+	resp = doJSON(t, srv, http.MethodGet, "/api/secret/list", other.Token, nil)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	rawBody, err := io.ReadAll(resp.Body) // read raw, not decode
+	require.NoError(t, err)
+	resp.Body.Close()
+	require.Equal(t, "[]", string(rawBody)) // proves nil→[] survives the full stack
+
+	// L3. Requesting the list without a token → 401.
+	resp = doJSON(t, srv, http.MethodGet, "/api/secret/list", "", nil)
+	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 	resp.Body.Close()
 }

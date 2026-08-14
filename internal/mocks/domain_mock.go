@@ -101,6 +101,21 @@ func (mr *MockGophkeeperRepositoryMockRecorder) GetUserByLogin(ctx, login any) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByLogin", reflect.TypeOf((*MockGophkeeperRepository)(nil).GetUserByLogin), ctx, login)
 }
 
+// ListSecrets mocks base method.
+func (m *MockGophkeeperRepository) ListSecrets(ctx context.Context, userID int64) ([]domain.SecretSummary, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListSecrets", ctx, userID)
+	ret0, _ := ret[0].([]domain.SecretSummary)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListSecrets indicates an expected call of ListSecrets.
+func (mr *MockGophkeeperRepositoryMockRecorder) ListSecrets(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListSecrets", reflect.TypeOf((*MockGophkeeperRepository)(nil).ListSecrets), ctx, userID)
+}
+
 // Ping mocks base method.
 func (m *MockGophkeeperRepository) Ping(ctx context.Context) error {
 	m.ctrl.T.Helper()
@@ -181,6 +196,21 @@ func (m *MockGophkeeperService) GetSecret(ctx context.Context, userID int64, id 
 func (mr *MockGophkeeperServiceMockRecorder) GetSecret(ctx, userID, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSecret", reflect.TypeOf((*MockGophkeeperService)(nil).GetSecret), ctx, userID, id)
+}
+
+// ListSecrets mocks base method.
+func (m *MockGophkeeperService) ListSecrets(ctx context.Context, userID int64) ([]domain.SecretSummary, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListSecrets", ctx, userID)
+	ret0, _ := ret[0].([]domain.SecretSummary)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListSecrets indicates an expected call of ListSecrets.
+func (mr *MockGophkeeperServiceMockRecorder) ListSecrets(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListSecrets", reflect.TypeOf((*MockGophkeeperService)(nil).ListSecrets), ctx, userID)
 }
 
 // LoginUser mocks base method.
