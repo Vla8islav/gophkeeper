@@ -34,6 +34,15 @@ type Secret struct {
 	UpdatedAt time.Time
 }
 
+type SecretSummary struct {
+	ID        uuid.UUID
+	Type      SecretType
+	Meta      []byte
+	Version   int64
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type GetSecretResponse struct {
 	ID        uuid.UUID  `json:"id"`
 	Type      SecretType `json:"type"`
