@@ -123,6 +123,20 @@ func (m *MockGophkeeperService) EXPECT() *MockGophkeeperServiceMockRecorder {
 	return m.recorder
 }
 
+// CreateSecret mocks base method.
+func (m *MockGophkeeperService) CreateSecret(ctx context.Context, userID int64, req domain.CreateSecretRequest) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateSecret", ctx, userID, req)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateSecret indicates an expected call of CreateSecret.
+func (mr *MockGophkeeperServiceMockRecorder) CreateSecret(ctx, userID, req any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSecret", reflect.TypeOf((*MockGophkeeperService)(nil).CreateSecret), ctx, userID, req)
+}
+
 // CreateUser mocks base method.
 func (m *MockGophkeeperService) CreateUser(ctx context.Context, request domain.UserRegisterRequest) (*domain.AuthResult, error) {
 	m.ctrl.T.Helper()
