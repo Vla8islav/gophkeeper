@@ -136,4 +136,26 @@ func TestE2E_RegisterLoginCreateSecret(t *testing.T) {
 	resp = doJSON(t, srv, http.MethodPost, "/api/secret/create", "not-a-real-token", createBody)
 	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 	resp.Body.Close()
+
+	// 7. Read the secret back → 200, payload round-trips.
+	resp = doJSON(t, srv, http.MethodGet, "/api/secret/get/"+secretID.String(), token, nil)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	var got domain.GetSecretResponse
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&got))
+	resp.Body.Close()
+	require.Equal(t, secretID, got.ID)
+	require.Equal(t, domain.SecretTypeText, got.Type)
+	require.Equal(t, []byte("hello"), got.Payload) // base64 → []byte round-trip
+
+	// 8. A second user must NOT see it → 404 (ownership isolation, full stack).
+	resp = doJSON(t, srv, http.MethodPost, "/api/user/register", "",
+		[]byte(`{"login":"e2e-intruder","password":"pw"}`))
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	var intruder domain.UserLoginResponse
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&intruder))
+	resp.Body.Close()
+
+	resp = doJSON(t, srv, http.MethodGet, "/api/secret/get/"+secretID.String(), intruder.Token, nil)
+	require.Equal(t, http.StatusNotFound, resp.StatusCode) // not 403 — non-leaky
+	resp.Body.Close()
 }

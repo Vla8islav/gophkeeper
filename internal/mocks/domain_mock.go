@@ -14,6 +14,7 @@ import (
 	reflect "reflect"
 
 	domain "github.com/Vla8islav/gophkeeper/internal/domain"
+	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -68,6 +69,21 @@ func (m *MockGophkeeperRepository) CreateUser(ctx context.Context, user domain.C
 func (mr *MockGophkeeperRepositoryMockRecorder) CreateUser(ctx, user any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockGophkeeperRepository)(nil).CreateUser), ctx, user)
+}
+
+// GetSecret mocks base method.
+func (m *MockGophkeeperRepository) GetSecret(ctx context.Context, userID int64, id uuid.UUID) (*domain.Secret, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSecret", ctx, userID, id)
+	ret0, _ := ret[0].(*domain.Secret)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSecret indicates an expected call of GetSecret.
+func (mr *MockGophkeeperRepositoryMockRecorder) GetSecret(ctx, userID, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSecret", reflect.TypeOf((*MockGophkeeperRepository)(nil).GetSecret), ctx, userID, id)
 }
 
 // GetUserByLogin mocks base method.
@@ -150,6 +166,21 @@ func (m *MockGophkeeperService) CreateUser(ctx context.Context, request domain.U
 func (mr *MockGophkeeperServiceMockRecorder) CreateUser(ctx, request any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockGophkeeperService)(nil).CreateUser), ctx, request)
+}
+
+// GetSecret mocks base method.
+func (m *MockGophkeeperService) GetSecret(ctx context.Context, userID int64, id uuid.UUID) (*domain.Secret, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSecret", ctx, userID, id)
+	ret0, _ := ret[0].(*domain.Secret)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSecret indicates an expected call of GetSecret.
+func (mr *MockGophkeeperServiceMockRecorder) GetSecret(ctx, userID, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSecret", reflect.TypeOf((*MockGophkeeperService)(nil).GetSecret), ctx, userID, id)
 }
 
 // LoginUser mocks base method.

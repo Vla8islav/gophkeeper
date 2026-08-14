@@ -21,6 +21,7 @@ func NewRouter(h *Handler, cfg *config.OptionsServer) http.Handler {
 
 		r.Use(middlewares.WithAuth([]byte(cfg.AuthTokenSecret.Value)))
 		r.Post("/api/secret/create", h.SecretCreateHandler)
+		r.Get("/api/secret/get/{id}", h.SecretGetHandler)
 
 	})
 

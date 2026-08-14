@@ -13,3 +13,5 @@ var ErrNotEnoughMoney = fmt.Errorf("order not found")
 
 var ErrSecretAlreadyExists = fmt.Errorf("secret already exists")
 var ErrInvalidSecretType = fmt.Errorf("invalid secret type")
+var ErrSecretNotFound = fmt.Errorf("secret not found")
+var ErrInvalidSecretID = fmt.Errorf("invalid secret id")
