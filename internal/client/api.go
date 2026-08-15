@@ -118,3 +118,27 @@ func (c *APIClient) CreateSecret(token string, req domain.CreateSecretRequest) e
 	}
 	return nil
 }
+
+func (c *APIClient) GetUserSalt(token string) ([]byte, error) {
+	req, err := http.NewRequest(http.MethodGet, c.baseURL+"/api/user/salt", nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusUnauthorized {
+		return nil, fmt.Errorf("unauthorized — try logging in again")
+	}
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("server returned %s", resp.Status)
+	}
+	var out domain.SaltResponse
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		return nil, err
+	}
+	return out.Salt, nil
+}

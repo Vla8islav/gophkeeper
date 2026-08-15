@@ -32,3 +32,12 @@ func readPassword(prompt string) (string, error) {
 	}
 	return strings.TrimRight(line, "\r\n"), nil
 }
+
+func readLine(prompt string) (string, error) {
+	fmt.Fprint(os.Stderr, prompt)
+	line, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	if err != nil && !errors.Is(err, io.EOF) {
+		return "", err
+	}
+	return strings.TrimRight(line, "\r\n"), nil
+}
