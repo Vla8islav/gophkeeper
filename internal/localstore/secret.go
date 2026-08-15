@@ -1,6 +1,10 @@
 package localstore
 
-import "fmt"
+import (
+	"database/sql"
+	"errors"
+	"fmt"
+)
 
 type Secret struct {
 	ID        string
@@ -28,4 +32,24 @@ func (s *Store) SaveSecret(sec Secret) error {
 		return fmt.Errorf("save secret: %w", err)
 	}
 	return nil
+}
+
+func (s *Store) GetSecret(id string) (Secret, error) {
+	var sec Secret
+	err := s.db.QueryRow(
+		`SELECT id, type, payload, meta, version, deleted, updated_at, dirty
+                 FROM secrets
+                 WHERE id = ? AND deleted = 0`,
+		id,
+	).Scan(
+		&sec.ID, &sec.Type, &sec.Payload, &sec.Meta,
+		&sec.Version, &sec.Deleted, &sec.UpdatedAt, &sec.Dirty,
+	)
+	if errors.Is(err, sql.ErrNoRows) {
+		return Secret{}, ErrNotCached
+	}
+	if err != nil {
+		return Secret{}, fmt.Errorf("get secret: %w", err)
+	}
+	return sec, nil
 }

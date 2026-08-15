@@ -87,16 +87,6 @@ func runAdd(cfg *config.OptionsClient, args []string) error {
 		Type:    string(secretType),
 		Payload: payloadCipher,
 		Meta:    metaCipher,
-	}); err != nil {
-		return err
-	}
-
-	// Cache the ciphertext locally (version 1, not dirty — already pushed).
-	if err := store.SaveSecret(localstore.Secret{
-		ID:      id.String(),
-		Type:    string(secretType),
-		Payload: payloadCipher,
-		Meta:    metaCipher,
 		Version: 1,
 		Dirty:   false,
 	}); err != nil {
