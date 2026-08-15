@@ -265,7 +265,6 @@ func TestE2E_RegisterLoginCreateSecret(t *testing.T) {
 	require.Len(t, salt1.Salt, 16)
 
 	// S2. The salt is STABLE across calls — same bytes every time.
-	// Cross-device decryption depends on this: the key must derive identically everywhere.
 	resp = doJSON(t, srv, http.MethodGet, "/api/user/salt", token, nil)
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 	var salt2 domain.SaltResponse
@@ -288,7 +287,7 @@ func TestE2E_RegisterLoginCreateSecret(t *testing.T) {
 	resp.Body.Close()
 	require.NotEqual(t, salt1.Salt, otherSalt.Salt)
 
-	// S4. Without a token → 401.
+	// S4. Without a token - 401.
 	resp = doJSON(t, srv, http.MethodGet, "/api/user/salt", "", nil)
 	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 	resp.Body.Close()

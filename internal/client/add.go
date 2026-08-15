@@ -140,7 +140,7 @@ func gatherPlaintext(t domain.SecretType) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		cvv, err := readPassword("cvv: ") // sensitive → no echo
+		cvv, err := readPassword("cvv: ") // sensitive - no echo
 		if err != nil {
 			return nil, err
 		}

@@ -17,7 +17,7 @@ func (h *Handler) UserSaltHandler(w http.ResponseWriter, r *http.Request) {
 
 	salt, err := h.service.GetUserSalt(r.Context(), userID)
 	if err != nil {
-		h.writeInternalServerError(w, err.Error()) // ErrSaltNotSet / ErrUserNotFound are server-side anomalies → 500
+		h.writeInternalServerError(w, err.Error()) // ErrSaltNotSet / ErrUserNotFound are server-side anomalies - 500
 		return
 	}
 
