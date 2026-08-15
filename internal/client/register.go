@@ -8,14 +8,31 @@ import (
 )
 
 func runRegister(cfg *config.OptionsClient, args []string) error {
-	if len(args) != 2 {
-		return errors.New("usage: register <login> <password>")
+	if len(args) != 1 {
+		return errors.New("usage: register <login>")
 	}
+	login := args[0]
+
+	password, err := readPassword("password: ")
+	if err != nil {
+		return err
+	}
+	if password == "" {
+		return errors.New("password cannot be empty")
+	}
+	confirm, err := readPassword("confirm password: ")
+	if err != nil {
+		return err
+	}
+	if password != confirm {
+		return errors.New("passwords do not match")
+	}
+
 	api, err := NewAPIClient(cfg.ServerAddress.Value, cfg.CACertPath.Value)
 	if err != nil {
 		return err
 	}
-	token, err := api.Register(args[0], args[1])
+	token, err := api.Register(login, password)
 	if err != nil {
 		return err
 	}

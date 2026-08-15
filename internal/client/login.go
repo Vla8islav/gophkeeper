@@ -8,14 +8,21 @@ import (
 )
 
 func runLogin(cfg *config.OptionsClient, args []string) error {
-	if len(args) != 2 {
-		return errors.New("usage: login <login> <password>")
+	if len(args) != 1 {
+		return errors.New("usage: login <login>")
 	}
+	login := args[0]
+
+	password, err := readPassword("password: ")
+	if err != nil {
+		return err
+	}
+
 	api, err := NewAPIClient(cfg.ServerAddress.Value, cfg.CACertPath.Value)
 	if err != nil {
 		return err
 	}
-	token, err := api.Login(args[0], args[1])
+	token, err := api.Login(login, password)
 	if err != nil {
 		return err
 	}
