@@ -14,4 +14,5 @@ type GophkeeperService interface {
 	ListSecrets(ctx context.Context, userID int64) ([]SecretSummary, error)
 	UpdateSecret(ctx context.Context, userID int64, id uuid.UUID, req UpdateSecretRequest) (int64, error)
 	GetSecret(ctx context.Context, userID int64, id uuid.UUID) (*Secret, error)
+	GetUserSalt(ctx context.Context, userID int64) ([]byte, error)
 }
