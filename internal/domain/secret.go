@@ -74,3 +74,7 @@ type UpdateSecretRequest struct {
 	Meta    []byte `json:"meta,omitempty"`
 	Version int64  `json:"version"`
 }
+
+type UpdateSecretResponse struct {
+	Version int64 `json:"version"` // version bump
+}

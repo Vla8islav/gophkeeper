@@ -191,4 +191,66 @@ func TestE2E_RegisterLoginCreateSecret(t *testing.T) {
 	resp = doJSON(t, srv, http.MethodGet, "/api/secret/list", "", nil)
 	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 	resp.Body.Close()
+
+	// Updates
+	upBody, err := json.Marshal(domain.UpdateSecretRequest{
+		Payload: []byte("hello-v2"), Meta: []byte("label"), Version: 1,
+	})
+	require.NoError(t, err)
+
+	resp = doJSON(t, srv, http.MethodPut, "/api/secret/update/"+secretID.String(), token, upBody)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	var up domain.UpdateSecretResponse
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&up))
+	resp.Body.Close()
+	require.Equal(t, int64(2), up.Version)
+
+	// U2. Read back - new payload, version 2.
+	resp = doJSON(t, srv, http.MethodGet, "/api/secret/get/"+secretID.String(), token, nil)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	var afterUpdate domain.GetSecretResponse
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&afterUpdate))
+	resp.Body.Close()
+	require.Equal(t, []byte("hello-v2"), afterUpdate.Payload)
+	require.Equal(t, int64(2), afterUpdate.Version)
+
+	// U3. A STALE update (still using version 1) - 409
+	staleBody, err := json.Marshal(domain.UpdateSecretRequest{
+		Payload: []byte("should-not-land"), Version: 1,
+	})
+	require.NoError(t, err)
+	resp = doJSON(t, srv, http.MethodPut, "/api/secret/update/"+secretID.String(), token, staleBody)
+	require.Equal(t, http.StatusConflict, resp.StatusCode)
+	resp.Body.Close()
+
+	// U4. The rejected write must NOT have landed — still v2, still "hello-v2"
+	resp = doJSON(t, srv, http.MethodGet, "/api/secret/get/"+secretID.String(), token, nil)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	var afterConflict domain.GetSecretResponse
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&afterConflict))
+	resp.Body.Close()
+	require.Equal(t, []byte("hello-v2"), afterConflict.Payload) // unchanged
+	require.Equal(t, int64(2), afterConflict.Version)
+
+	// U5. Update at the CORRECT new version (2) - 200, bumps to 3.
+	up2Body, err := json.Marshal(domain.UpdateSecretRequest{
+		Payload: []byte("hello-v3"), Version: 2,
+	})
+	require.NoError(t, err)
+	resp = doJSON(t, srv, http.MethodPut, "/api/secret/update/"+secretID.String(), token, up2Body)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&up))
+	resp.Body.Close()
+	require.Equal(t, int64(3), up.Version)
+
+	// U6. Update a nonexistent secret - 404.
+	missingBody, _ := json.Marshal(domain.UpdateSecretRequest{Payload: []byte("x"), Version: 1})
+	resp = doJSON(t, srv, http.MethodPut, "/api/secret/update/"+uuid.New().String(), token, missingBody)
+	require.Equal(t, http.StatusNotFound, resp.StatusCode)
+	resp.Body.Close()
+
+	// U7. Update without a token - 401.
+	resp = doJSON(t, srv, http.MethodPut, "/api/secret/update/"+secretID.String(), "", upBody)
+	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
+	resp.Body.Close()
 }
