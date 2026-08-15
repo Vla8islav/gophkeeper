@@ -94,3 +94,27 @@ func (c *APIClient) ListSecrets(token string) ([]domain.SecretSummaryResponse, e
 	}
 	return out, nil
 }
+
+func (c *APIClient) CreateSecret(token string, req domain.CreateSecretRequest) error {
+	body, err := json.Marshal(req)
+	if err != nil {
+		return err
+	}
+	httpReq, err := http.NewRequest(http.MethodPost, c.baseURL+"/api/secret/create", bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("Authorization", "Bearer "+token)
+
+	resp, err := c.http.Do(httpReq)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusCreated {
+		return fmt.Errorf("server returned %s", resp.Status)
+	}
+	return nil
+}
