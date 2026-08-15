@@ -101,6 +101,21 @@ func (mr *MockGophkeeperRepositoryMockRecorder) GetUserByLogin(ctx, login any) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByLogin", reflect.TypeOf((*MockGophkeeperRepository)(nil).GetUserByLogin), ctx, login)
 }
 
+// GetUserSalt mocks base method.
+func (m *MockGophkeeperRepository) GetUserSalt(ctx context.Context, userID int64) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserSalt", ctx, userID)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserSalt indicates an expected call of GetUserSalt.
+func (mr *MockGophkeeperRepositoryMockRecorder) GetUserSalt(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserSalt", reflect.TypeOf((*MockGophkeeperRepository)(nil).GetUserSalt), ctx, userID)
+}
+
 // ListSecrets mocks base method.
 func (m *MockGophkeeperRepository) ListSecrets(ctx context.Context, userID int64) ([]domain.SecretSummary, error) {
 	m.ctrl.T.Helper()
@@ -211,6 +226,21 @@ func (m *MockGophkeeperService) GetSecret(ctx context.Context, userID int64, id 
 func (mr *MockGophkeeperServiceMockRecorder) GetSecret(ctx, userID, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSecret", reflect.TypeOf((*MockGophkeeperService)(nil).GetSecret), ctx, userID, id)
+}
+
+// GetUserSalt mocks base method.
+func (m *MockGophkeeperService) GetUserSalt(ctx context.Context, userID int64) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserSalt", ctx, userID)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserSalt indicates an expected call of GetUserSalt.
+func (mr *MockGophkeeperServiceMockRecorder) GetUserSalt(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserSalt", reflect.TypeOf((*MockGophkeeperService)(nil).GetUserSalt), ctx, userID)
 }
 
 // ListSecrets mocks base method.
