@@ -8,10 +8,12 @@ import (
 	"github.com/Vla8islav/gophkeeper/internal/domain"
 	"github.com/Vla8islav/gophkeeper/internal/helpers"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 )
 
 func TestPostgresStorage_GetUserByLogin(t *testing.T) {
-	cfg := config.ReadFlagsServer(nil)
+	logger := zap.NewNop()
+	cfg, _ := config.ReadFlagsServer(nil, logger)
 	storage := InitTestPostgresStorage(t, cfg)
 
 	ctx := context.Background()
@@ -34,7 +36,8 @@ func TestPostgresStorage_GetUserByLogin(t *testing.T) {
 }
 
 func TestPostgresStorage_GetUserByLogin_NotFound(t *testing.T) {
-	cfg := config.ReadFlagsServer(nil)
+	logger := zap.NewNop()
+	cfg, _ := config.ReadFlagsServer(nil, logger)
 	storage := InitTestPostgresStorage(t, cfg)
 
 	ctx := context.Background()

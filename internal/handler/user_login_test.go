@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -51,14 +52,15 @@ func TestUserLoginHandler_Success(t *testing.T) {
 	defer res.Body.Close()
 
 	require.Equal(t, http.StatusOK, res.StatusCode)
+	require.Equal(t, "application/json", res.Header.Get("Content-Type"))
 
-	cookies := res.Cookies()
-	require.Len(t, cookies, 1)
-	require.Equal(t, "auth_token", cookies[0].Name)
-	require.Equal(t, "test-token", cookies[0].Value)
-	require.True(t, cookies[0].HttpOnly)
-	require.Equal(t, http.SameSiteLaxMode, cookies[0].SameSite)
-	require.Equal(t, "/", cookies[0].Path)
+	// Token now comes back in the JSON body (not a cookie).
+	var resp domain.UserLoginResponse
+	require.NoError(t, json.NewDecoder(res.Body).Decode(&resp))
+	require.Equal(t, "test-token", resp.Token)
+
+	// And there should be NO auth cookie anymore.
+	require.Empty(t, res.Cookies())
 }
 
 func TestUserLoginHandler_AllowsJSONContentTypeWithCharset(t *testing.T) {

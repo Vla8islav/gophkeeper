@@ -14,6 +14,7 @@ import (
 	reflect "reflect"
 
 	domain "github.com/Vla8islav/gophkeeper/internal/domain"
+	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -41,18 +42,18 @@ func (m *MockGophkeeperRepository) EXPECT() *MockGophkeeperRepositoryMockRecorde
 	return m.recorder
 }
 
-// CreateOrder mocks base method.
-func (m *MockGophkeeperRepository) CreateOrder(ctx context.Context, userID int64, orderNumber string) error {
+// CreateSecret mocks base method.
+func (m *MockGophkeeperRepository) CreateSecret(ctx context.Context, user domain.CreateSecretParams) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateOrder", ctx, userID, orderNumber)
+	ret := m.ctrl.Call(m, "CreateSecret", ctx, user)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// CreateOrder indicates an expected call of CreateOrder.
-func (mr *MockGophkeeperRepositoryMockRecorder) CreateOrder(ctx, userID, orderNumber any) *gomock.Call {
+// CreateSecret indicates an expected call of CreateSecret.
+func (mr *MockGophkeeperRepositoryMockRecorder) CreateSecret(ctx, user any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrder", reflect.TypeOf((*MockGophkeeperRepository)(nil).CreateOrder), ctx, userID, orderNumber)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSecret", reflect.TypeOf((*MockGophkeeperRepository)(nil).CreateSecret), ctx, user)
 }
 
 // CreateUser mocks base method.
@@ -70,6 +71,21 @@ func (mr *MockGophkeeperRepositoryMockRecorder) CreateUser(ctx, user any) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockGophkeeperRepository)(nil).CreateUser), ctx, user)
 }
 
+// GetSecret mocks base method.
+func (m *MockGophkeeperRepository) GetSecret(ctx context.Context, userID int64, id uuid.UUID) (*domain.Secret, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSecret", ctx, userID, id)
+	ret0, _ := ret[0].(*domain.Secret)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSecret indicates an expected call of GetSecret.
+func (mr *MockGophkeeperRepositoryMockRecorder) GetSecret(ctx, userID, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSecret", reflect.TypeOf((*MockGophkeeperRepository)(nil).GetSecret), ctx, userID, id)
+}
+
 // GetUserByLogin mocks base method.
 func (m *MockGophkeeperRepository) GetUserByLogin(ctx context.Context, login string) (*domain.User, error) {
 	m.ctrl.T.Helper()
@@ -85,6 +101,21 @@ func (mr *MockGophkeeperRepositoryMockRecorder) GetUserByLogin(ctx, login any) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByLogin", reflect.TypeOf((*MockGophkeeperRepository)(nil).GetUserByLogin), ctx, login)
 }
 
+// ListSecrets mocks base method.
+func (m *MockGophkeeperRepository) ListSecrets(ctx context.Context, userID int64) ([]domain.SecretSummary, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListSecrets", ctx, userID)
+	ret0, _ := ret[0].([]domain.SecretSummary)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListSecrets indicates an expected call of ListSecrets.
+func (mr *MockGophkeeperRepositoryMockRecorder) ListSecrets(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListSecrets", reflect.TypeOf((*MockGophkeeperRepository)(nil).ListSecrets), ctx, userID)
+}
+
 // Ping mocks base method.
 func (m *MockGophkeeperRepository) Ping(ctx context.Context) error {
 	m.ctrl.T.Helper()
@@ -97,6 +128,21 @@ func (m *MockGophkeeperRepository) Ping(ctx context.Context) error {
 func (mr *MockGophkeeperRepositoryMockRecorder) Ping(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ping", reflect.TypeOf((*MockGophkeeperRepository)(nil).Ping), ctx)
+}
+
+// UpdateSecret mocks base method.
+func (m *MockGophkeeperRepository) UpdateSecret(ctx context.Context, params domain.UpdateSecretParams) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateSecret", ctx, params)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateSecret indicates an expected call of UpdateSecret.
+func (mr *MockGophkeeperRepositoryMockRecorder) UpdateSecret(ctx, params any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSecret", reflect.TypeOf((*MockGophkeeperRepository)(nil).UpdateSecret), ctx, params)
 }
 
 // MockGophkeeperService is a mock of GophkeeperService interface.
@@ -123,6 +169,20 @@ func (m *MockGophkeeperService) EXPECT() *MockGophkeeperServiceMockRecorder {
 	return m.recorder
 }
 
+// CreateSecret mocks base method.
+func (m *MockGophkeeperService) CreateSecret(ctx context.Context, userID int64, req domain.CreateSecretRequest) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateSecret", ctx, userID, req)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateSecret indicates an expected call of CreateSecret.
+func (mr *MockGophkeeperServiceMockRecorder) CreateSecret(ctx, userID, req any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSecret", reflect.TypeOf((*MockGophkeeperService)(nil).CreateSecret), ctx, userID, req)
+}
+
 // CreateUser mocks base method.
 func (m *MockGophkeeperService) CreateUser(ctx context.Context, request domain.UserRegisterRequest) (*domain.AuthResult, error) {
 	m.ctrl.T.Helper()
@@ -136,6 +196,36 @@ func (m *MockGophkeeperService) CreateUser(ctx context.Context, request domain.U
 func (mr *MockGophkeeperServiceMockRecorder) CreateUser(ctx, request any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockGophkeeperService)(nil).CreateUser), ctx, request)
+}
+
+// GetSecret mocks base method.
+func (m *MockGophkeeperService) GetSecret(ctx context.Context, userID int64, id uuid.UUID) (*domain.Secret, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSecret", ctx, userID, id)
+	ret0, _ := ret[0].(*domain.Secret)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSecret indicates an expected call of GetSecret.
+func (mr *MockGophkeeperServiceMockRecorder) GetSecret(ctx, userID, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSecret", reflect.TypeOf((*MockGophkeeperService)(nil).GetSecret), ctx, userID, id)
+}
+
+// ListSecrets mocks base method.
+func (m *MockGophkeeperService) ListSecrets(ctx context.Context, userID int64) ([]domain.SecretSummary, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListSecrets", ctx, userID)
+	ret0, _ := ret[0].([]domain.SecretSummary)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListSecrets indicates an expected call of ListSecrets.
+func (mr *MockGophkeeperServiceMockRecorder) ListSecrets(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListSecrets", reflect.TypeOf((*MockGophkeeperService)(nil).ListSecrets), ctx, userID)
 }
 
 // LoginUser mocks base method.
@@ -165,4 +255,19 @@ func (m *MockGophkeeperService) Ping(ctx context.Context) error {
 func (mr *MockGophkeeperServiceMockRecorder) Ping(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ping", reflect.TypeOf((*MockGophkeeperService)(nil).Ping), ctx)
+}
+
+// UpdateSecret mocks base method.
+func (m *MockGophkeeperService) UpdateSecret(ctx context.Context, userID int64, id uuid.UUID, req domain.UpdateSecretRequest) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateSecret", ctx, userID, id, req)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateSecret indicates an expected call of UpdateSecret.
+func (mr *MockGophkeeperServiceMockRecorder) UpdateSecret(ctx, userID, id, req any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSecret", reflect.TypeOf((*MockGophkeeperService)(nil).UpdateSecret), ctx, userID, id, req)
 }

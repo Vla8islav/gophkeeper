@@ -36,6 +36,16 @@ func (h *Handler) writeBadRequest(w http.ResponseWriter, msg string) {
 	http.Error(w, msg, http.StatusBadRequest)
 }
 
+func (h *Handler) writeNotFound(w http.ResponseWriter, msg string) {
+	h.logger.Info("not found request", zap.String("msg", msg))
+	http.Error(w, msg, http.StatusNotFound)
+}
+
+func (h *Handler) writeConflict(w http.ResponseWriter, msg string) {
+	h.logger.Info("conflict", zap.String("msg", msg))
+	http.Error(w, msg, http.StatusConflict)
+}
+
 func (h *Handler) writePaymentRequired(w http.ResponseWriter, msg string) {
 	h.logger.Info("not enough money", zap.String("msg", msg))
 	http.Error(w, msg, http.StatusPaymentRequired)

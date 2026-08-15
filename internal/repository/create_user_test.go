@@ -8,10 +8,12 @@ import (
 	"github.com/Vla8islav/gophkeeper/internal/domain"
 	"github.com/Vla8islav/gophkeeper/internal/helpers"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 )
 
 func TestPostgresStorage_CreateUser(t *testing.T) {
-	cfg := config.ReadFlagsServer(nil)
+	logger := zap.NewNop()
+	cfg, _ := config.ReadFlagsServer(nil, logger)
 	storage := InitTestPostgresStorage(t, cfg)
 
 	ctx := context.Background()
@@ -41,7 +43,8 @@ func TestPostgresStorage_CreateUser(t *testing.T) {
 }
 
 func TestPostgresStorage_CreateUser_DuplicateLogin(t *testing.T) {
-	cfg := config.ReadFlagsServer(nil)
+	logger := zap.NewNop()
+	cfg, _ := config.ReadFlagsServer(nil, logger)
 	storage := InitTestPostgresStorage(t, cfg)
 
 	ctx := context.Background()
@@ -61,7 +64,8 @@ func TestPostgresStorage_CreateUser_DuplicateLogin(t *testing.T) {
 }
 
 func TestPostgresStorage_CreateUser_AllowsSamePasswordHash(t *testing.T) {
-	cfg := config.ReadFlagsServer(nil)
+	logger := zap.NewNop()
+	cfg, _ := config.ReadFlagsServer(nil, logger)
 	storage := InitTestPostgresStorage(t, cfg)
 
 	ctx := context.Background()
