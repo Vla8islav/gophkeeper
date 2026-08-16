@@ -253,4 +253,74 @@ func TestE2E_RegisterLoginCreateSecret(t *testing.T) {
 	resp = doJSON(t, srv, http.MethodPut, "/api/secret/update/"+secretID.String(), "", upBody)
 	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 	resp.Body.Close()
+
+	// --- Salt endpoint ---
+
+	// S1. An authenticated user can fetch their KDF salt, and it's 16 bytes.
+	resp = doJSON(t, srv, http.MethodGet, "/api/user/salt", token, nil)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	var salt1 domain.SaltResponse
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&salt1))
+	resp.Body.Close()
+	require.Len(t, salt1.Salt, 16)
+
+	// S2. The salt is STABLE across calls — same bytes every time.
+	resp = doJSON(t, srv, http.MethodGet, "/api/user/salt", token, nil)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	var salt2 domain.SaltResponse
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&salt2))
+	resp.Body.Close()
+	require.Equal(t, salt1.Salt, salt2.Salt)
+
+	// S3. A different user gets a DIFFERENT salt (per-user randomness from crypto/rand).
+	resp = doJSON(t, srv, http.MethodPost, "/api/user/register", "",
+		[]byte(`{"login":"e2e-salt-other","password":"pw"}`))
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	var otherUser domain.UserRegisterResponse
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&otherUser))
+	resp.Body.Close()
+
+	resp = doJSON(t, srv, http.MethodGet, "/api/user/salt", otherUser.Token, nil)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	var otherSalt domain.SaltResponse
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&otherSalt))
+	resp.Body.Close()
+	require.NotEqual(t, salt1.Salt, otherSalt.Salt)
+
+	// S4. Without a token - 401.
+	resp = doJSON(t, srv, http.MethodGet, "/api/user/salt", "", nil)
+	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
+	resp.Body.Close()
+
+	// --- Delete path ---
+
+	// D1. Delete the secret → 204.
+	resp = doJSON(t, srv, http.MethodDelete, "/api/secret/delete/"+secretID.String(), token, nil)
+	require.Equal(t, http.StatusNoContent, resp.StatusCode)
+	resp.Body.Close()
+
+	// D2. Gone from reads → 404.
+	resp = doJSON(t, srv, http.MethodGet, "/api/secret/get/"+secretID.String(), token, nil)
+	require.Equal(t, http.StatusNotFound, resp.StatusCode)
+	resp.Body.Close()
+
+	// D3. Gone from the list too.
+	resp = doJSON(t, srv, http.MethodGet, "/api/secret/list", token, nil)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	var listAfterDelete []domain.SecretSummaryResponse
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&listAfterDelete))
+	resp.Body.Close()
+	for _, s := range listAfterDelete {
+		require.NotEqual(t, secretID, s.ID) // the deleted one must not appear
+	}
+
+	// D4. Deleting again → 404 (already deleted; the AND deleted = FALSE at work).
+	resp = doJSON(t, srv, http.MethodDelete, "/api/secret/delete/"+secretID.String(), token, nil)
+	require.Equal(t, http.StatusNotFound, resp.StatusCode)
+	resp.Body.Close()
+
+	// D5. Delete without a token → 401.
+	resp = doJSON(t, srv, http.MethodDelete, "/api/secret/delete/"+secretID.String(), "", nil)
+	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
+	resp.Body.Close()
 }

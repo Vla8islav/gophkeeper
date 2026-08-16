@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
 
 	"github.com/Vla8islav/gophkeeper/internal/domain"
@@ -11,11 +12,20 @@ import (
 func (m gophkeeperService) CreateUser(ctx context.Context, userRegReq domain.UserRegisterRequest) (*domain.AuthResult, error) {
 	hash, err := helpers.HashPassword(userRegReq.Password)
 	if err != nil {
-		return nil, fmt.Errorf("failed to calculate the hash for the new user %s: %w", userRegReq.Login, err)
+		return nil, fmt.Errorf("failed to calculate the hash for the new user %s: %w",
+			userRegReq.Login, err)
 	}
+
+	salt := make([]byte, 16)
+	if _, err = rand.Read(salt); err != nil {
+		return nil, fmt.Errorf("failed to generate kdf salt for user %s: %w",
+			userRegReq.Login, err)
+	}
+
 	createUserParams := domain.CreateUserParams{
 		Login:        userRegReq.Login,
 		PasswordHash: hash,
+		Salt:         salt,
 	}
 	userID, err := m.repository.CreateUser(ctx, createUserParams)
 

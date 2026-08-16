@@ -48,7 +48,7 @@ func TestGophkeeperService_UpdateSecret_NilID(t *testing.T) {
 	repository := mocks.NewMockGophkeeperRepository(ctrl)
 	svc := gophkeeperService{repository: repository}
 
-	// No EXPECT → repo must not be reached when the id is invalid.
+	// No EXPECT - repo must not be reached when the id is invalid.
 	newVersion, err := svc.UpdateSecret(context.Background(), 42, uuid.Nil, domain.UpdateSecretRequest{Version: 1})
 	require.ErrorIs(t, err, domain.ErrInvalidSecretID)
 	require.Zero(t, newVersion)

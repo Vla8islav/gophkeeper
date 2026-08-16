@@ -78,3 +78,13 @@ type UpdateSecretRequest struct {
 type UpdateSecretResponse struct {
 	Version int64 `json:"version"` // version bump
 }
+
+type SyncSecretResponse struct {
+	ID        uuid.UUID  `json:"id"`
+	Type      SecretType `json:"type"`
+	Payload   []byte     `json:"payload,omitempty"`
+	Meta      []byte     `json:"meta,omitempty"`
+	Version   int64      `json:"version"`
+	Deleted   bool       `json:"deleted"`
+	UpdatedAt time.Time  `json:"updated_at"`
+}

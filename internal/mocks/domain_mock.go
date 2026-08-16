@@ -71,6 +71,20 @@ func (mr *MockGophkeeperRepositoryMockRecorder) CreateUser(ctx, user any) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockGophkeeperRepository)(nil).CreateUser), ctx, user)
 }
 
+// DeleteSecret mocks base method.
+func (m *MockGophkeeperRepository) DeleteSecret(ctx context.Context, userID int64, id uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteSecret", ctx, userID, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteSecret indicates an expected call of DeleteSecret.
+func (mr *MockGophkeeperRepositoryMockRecorder) DeleteSecret(ctx, userID, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSecret", reflect.TypeOf((*MockGophkeeperRepository)(nil).DeleteSecret), ctx, userID, id)
+}
+
 // GetSecret mocks base method.
 func (m *MockGophkeeperRepository) GetSecret(ctx context.Context, userID int64, id uuid.UUID) (*domain.Secret, error) {
 	m.ctrl.T.Helper()
@@ -99,6 +113,21 @@ func (m *MockGophkeeperRepository) GetUserByLogin(ctx context.Context, login str
 func (mr *MockGophkeeperRepositoryMockRecorder) GetUserByLogin(ctx, login any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByLogin", reflect.TypeOf((*MockGophkeeperRepository)(nil).GetUserByLogin), ctx, login)
+}
+
+// GetUserSalt mocks base method.
+func (m *MockGophkeeperRepository) GetUserSalt(ctx context.Context, userID int64) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserSalt", ctx, userID)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserSalt indicates an expected call of GetUserSalt.
+func (mr *MockGophkeeperRepositoryMockRecorder) GetUserSalt(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserSalt", reflect.TypeOf((*MockGophkeeperRepository)(nil).GetUserSalt), ctx, userID)
 }
 
 // ListSecrets mocks base method.
@@ -198,6 +227,20 @@ func (mr *MockGophkeeperServiceMockRecorder) CreateUser(ctx, request any) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockGophkeeperService)(nil).CreateUser), ctx, request)
 }
 
+// DeleteSecret mocks base method.
+func (m *MockGophkeeperService) DeleteSecret(ctx context.Context, userID int64, id uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteSecret", ctx, userID, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteSecret indicates an expected call of DeleteSecret.
+func (mr *MockGophkeeperServiceMockRecorder) DeleteSecret(ctx, userID, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSecret", reflect.TypeOf((*MockGophkeeperService)(nil).DeleteSecret), ctx, userID, id)
+}
+
 // GetSecret mocks base method.
 func (m *MockGophkeeperService) GetSecret(ctx context.Context, userID int64, id uuid.UUID) (*domain.Secret, error) {
 	m.ctrl.T.Helper()
@@ -211,6 +254,21 @@ func (m *MockGophkeeperService) GetSecret(ctx context.Context, userID int64, id 
 func (mr *MockGophkeeperServiceMockRecorder) GetSecret(ctx, userID, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSecret", reflect.TypeOf((*MockGophkeeperService)(nil).GetSecret), ctx, userID, id)
+}
+
+// GetUserSalt mocks base method.
+func (m *MockGophkeeperService) GetUserSalt(ctx context.Context, userID int64) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserSalt", ctx, userID)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserSalt indicates an expected call of GetUserSalt.
+func (mr *MockGophkeeperServiceMockRecorder) GetUserSalt(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserSalt", reflect.TypeOf((*MockGophkeeperService)(nil).GetUserSalt), ctx, userID)
 }
 
 // ListSecrets mocks base method.
