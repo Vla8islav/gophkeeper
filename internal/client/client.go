@@ -17,7 +17,7 @@ func Execute() error {
 	}
 	if len(rest) == 0 {
 		return errors.New("usage: gophkeeper [flags] <command> [args]\n" +
-			"commands: register, login, list, add, get, delete, sync",
+			"commands: register, login, list, add, get, update, delete, sync",
 		)
 	}
 
@@ -35,6 +35,8 @@ func Execute() error {
 		return runGet(cfg, cmdArgs)
 	case "sync":
 		return runSync(cfg, cmdArgs)
+	case "update":
+		return runUpdate(cfg, cmdArgs)
 	case "delete":
 		return runDelete(cfg, cmdArgs)
 	default:

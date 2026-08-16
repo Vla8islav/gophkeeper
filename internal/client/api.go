@@ -196,3 +196,40 @@ func (c *APIClient) SyncSecrets(token string) ([]domain.SyncSecretResponse, erro
 	}
 	return out, nil
 }
+
+func (c *APIClient) UpdateSecret(token string, id uuid.UUID, req domain.UpdateSecretRequest) (int64, error) {
+	body, err := json.Marshal(req)
+	if err != nil {
+		return 0, err
+	}
+	httpReq, err := http.NewRequest(http.MethodPut,
+		c.baseURL+"/api/secret/update/"+id.String(), bytes.NewReader(body))
+	if err != nil {
+		return 0, err
+	}
+	httpReq.Header.Set("Content-Type", "application/json")
+	httpReq.Header.Set("Authorization", "Bearer "+token)
+
+	resp, err := c.http.Do(httpReq)
+	if err != nil {
+		return 0, err
+	}
+	defer resp.Body.Close()
+
+	switch resp.StatusCode {
+	case http.StatusOK:
+		var out domain.UpdateSecretResponse
+		if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+			return 0, err
+		}
+		return out.Version, nil
+	case http.StatusConflict:
+		return 0, fmt.Errorf("version conflict — run `sync` and try again")
+	case http.StatusNotFound:
+		return 0, fmt.Errorf("secret %s not found", id)
+	case http.StatusUnauthorized:
+		return 0, fmt.Errorf("unauthorized — try logging in again")
+	default:
+		return 0, fmt.Errorf("server returned %s", resp.Status)
+	}
+}
