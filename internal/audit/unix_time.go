@@ -5,12 +5,12 @@ import (
 	"time"
 )
 
-// generate:reset
 type UnixTime struct {
 	time.Time
 }
 
-func (t *UnixTime) MarshalJSON() ([]byte, error) {
+// MarshalJSON uses a value receiver
+func (t UnixTime) MarshalJSON() ([]byte, error) {
 	return []byte(strconv.FormatInt(t.Unix(), 10)), nil
 }
 
