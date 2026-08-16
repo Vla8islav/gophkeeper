@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/Vla8islav/gophkeeper/internal/domain"
+	"github.com/google/uuid"
 )
 
 type APIClient struct {
@@ -141,4 +142,30 @@ func (c *APIClient) GetUserSalt(token string) ([]byte, error) {
 		return nil, err
 	}
 	return out.Salt, nil
+}
+
+func (c *APIClient) DeleteSecret(token string, id uuid.UUID) error {
+	req, err := http.NewRequest(http.MethodDelete,
+		c.baseURL+"/api/secret/delete/"+id.String(), nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	switch resp.StatusCode {
+	case http.StatusNoContent:
+		return nil
+	case http.StatusNotFound:
+		return fmt.Errorf("secret %s not found", id)
+	case http.StatusUnauthorized:
+		return fmt.Errorf("unauthorized — try logging in again")
+	default:
+		return fmt.Errorf("server returned %s", resp.Status)
+	}
 }

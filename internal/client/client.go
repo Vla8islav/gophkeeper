@@ -17,7 +17,7 @@ func Execute() error {
 	}
 	if len(rest) == 0 {
 		return errors.New("usage: gophkeeper [flags] <command> [args]\n" +
-			"commands: register, login, list, add, get") // <- 'get' added
+			"commands: register, login, list, add, get, delete")
 	}
 
 	cmd, cmdArgs := rest[0], rest[1:]
@@ -32,6 +32,8 @@ func Execute() error {
 		return runAdd(cfg, cmdArgs)
 	case "get":
 		return runGet(cfg, cmdArgs)
+	case "delete":
+		return runDelete(cfg, cmdArgs)
 	default:
 		return fmt.Errorf("unknown command %q", cmd)
 	}

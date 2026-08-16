@@ -92,3 +92,11 @@ func (s *Store) Salt() ([]byte, error) {
 	}
 	return salt, nil
 }
+
+func (s *Store) RemoveSecret(id string) error {
+	_, err := s.db.Exec(`DELETE FROM secrets WHERE id = ?`, id)
+	if err != nil {
+		return fmt.Errorf("remove secret: %w", err)
+	}
+	return nil
+}

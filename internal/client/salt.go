@@ -8,7 +8,7 @@ import (
 )
 
 func fetchSalt(cfg *config.OptionsClient, store *localstore.Store, token string) ([]byte, error) {
-	// Cache hit — no network, works offline.
+	// Cache hit - no network, works offline.
 	salt, err := store.Salt()
 	if err == nil {
 		return salt, nil
@@ -17,7 +17,7 @@ func fetchSalt(cfg *config.OptionsClient, store *localstore.Store, token string)
 		return nil, err
 	}
 
-	// Cache miss — fetch once from the server, then persist.
+	// Cache miss - fetch once from the server, then persist.
 	api, err := NewAPIClient(cfg.ServerAddress.Value, cfg.CACertPath.Value)
 	if err != nil {
 		return nil, err
