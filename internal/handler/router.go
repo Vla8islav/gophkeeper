@@ -23,6 +23,7 @@ func NewRouter(h *Handler, cfg *config.OptionsServer) http.Handler {
 		r.Post("/api/secret/create", h.SecretCreateHandler)
 		r.Get("/api/secret/get/{id}", h.SecretGetHandler)
 		r.Put("/api/secret/update/{id}", h.SecretUpdateHandler)
+		r.Delete("/api/secret/delete/{id}", h.SecretDeleteHandler)
 		r.Get("/api/secret/list", h.SecretsListHandler)
 		r.Get("/api/user/salt", h.UserSaltHandler)
 

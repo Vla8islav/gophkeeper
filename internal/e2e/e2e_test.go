@@ -291,4 +291,36 @@ func TestE2E_RegisterLoginCreateSecret(t *testing.T) {
 	resp = doJSON(t, srv, http.MethodGet, "/api/user/salt", "", nil)
 	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
 	resp.Body.Close()
+
+	// --- Delete path ---
+
+	// D1. Delete the secret → 204.
+	resp = doJSON(t, srv, http.MethodDelete, "/api/secret/delete/"+secretID.String(), token, nil)
+	require.Equal(t, http.StatusNoContent, resp.StatusCode)
+	resp.Body.Close()
+
+	// D2. Gone from reads → 404.
+	resp = doJSON(t, srv, http.MethodGet, "/api/secret/get/"+secretID.String(), token, nil)
+	require.Equal(t, http.StatusNotFound, resp.StatusCode)
+	resp.Body.Close()
+
+	// D3. Gone from the list too.
+	resp = doJSON(t, srv, http.MethodGet, "/api/secret/list", token, nil)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+	var listAfterDelete []domain.SecretSummaryResponse
+	require.NoError(t, json.NewDecoder(resp.Body).Decode(&listAfterDelete))
+	resp.Body.Close()
+	for _, s := range listAfterDelete {
+		require.NotEqual(t, secretID, s.ID) // the deleted one must not appear
+	}
+
+	// D4. Deleting again → 404 (already deleted; the AND deleted = FALSE at work).
+	resp = doJSON(t, srv, http.MethodDelete, "/api/secret/delete/"+secretID.String(), token, nil)
+	require.Equal(t, http.StatusNotFound, resp.StatusCode)
+	resp.Body.Close()
+
+	// D5. Delete without a token → 401.
+	resp = doJSON(t, srv, http.MethodDelete, "/api/secret/delete/"+secretID.String(), "", nil)
+	require.Equal(t, http.StatusUnauthorized, resp.StatusCode)
+	resp.Body.Close()
 }
