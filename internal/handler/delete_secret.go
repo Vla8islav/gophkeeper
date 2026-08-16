@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/Vla8islav/gophkeeper/internal/audit"
 	"github.com/Vla8islav/gophkeeper/internal/domain"
 	"github.com/Vla8islav/gophkeeper/internal/middlewares"
 	"github.com/go-chi/chi/v5"
@@ -11,6 +12,7 @@ import (
 )
 
 func (h *Handler) SecretDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	audit.SetOperation(r.Context(), "secret.delete")
 	userID, ok := middlewares.UserIDFromContext(r.Context())
 	if !ok {
 		h.writeInternalServerError(w, "user id missing from context")

@@ -7,6 +7,7 @@ import (
 	"mime"
 	"net/http"
 
+	"github.com/Vla8islav/gophkeeper/internal/audit"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
@@ -15,6 +16,7 @@ import (
 )
 
 func (h *Handler) SecretUpdateHandler(w http.ResponseWriter, r *http.Request) {
+	audit.SetOperation(r.Context(), "secret.update")
 	mimeType, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
 	if mimeType != "application/json" {
 		h.writeBadRequest(w, "only application/json content type is supported")

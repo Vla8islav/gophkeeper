@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/Vla8islav/gophkeeper/internal/audit"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
@@ -13,6 +14,7 @@ import (
 )
 
 func (h *Handler) SecretGetHandler(w http.ResponseWriter, r *http.Request) {
+	audit.SetOperation(r.Context(), "secret.get")
 	userID, ok := middlewares.UserIDFromContext(r.Context())
 	if !ok {
 		h.writeInternalServerError(w, "user id missing from context")

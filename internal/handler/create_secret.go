@@ -7,11 +7,14 @@ import (
 	"mime"
 	"net/http"
 
+	"github.com/Vla8islav/gophkeeper/internal/audit"
 	"github.com/Vla8islav/gophkeeper/internal/domain"
 	"github.com/Vla8islav/gophkeeper/internal/middlewares"
 )
 
 func (h *Handler) SecretCreateHandler(w http.ResponseWriter, r *http.Request) {
+	audit.SetOperation(r.Context(), "secret.create")
+
 	mimeType, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
 	if mimeType != "application/json" {
 		h.writeBadRequest(w, "only application/json content type is supported")

@@ -7,6 +7,7 @@ import (
 	"mime"
 	"net/http"
 
+	"github.com/Vla8islav/gophkeeper/internal/audit"
 	"github.com/Vla8islav/gophkeeper/internal/domain"
 	"github.com/Vla8islav/gophkeeper/internal/repository"
 )
@@ -40,6 +41,7 @@ Content-Type: application/json
 */
 
 func (h *Handler) UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
+	audit.SetOperation(r.Context(), "user.register")
 
 	if r.Method != http.MethodPost {
 		h.writeMethodNotAllowed(w, "only POST method is allowed")

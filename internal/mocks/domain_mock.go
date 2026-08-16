@@ -159,6 +159,21 @@ func (mr *MockGophkeeperRepositoryMockRecorder) Ping(ctx any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ping", reflect.TypeOf((*MockGophkeeperRepository)(nil).Ping), ctx)
 }
 
+// SyncSecrets mocks base method.
+func (m *MockGophkeeperRepository) SyncSecrets(ctx context.Context, userID int64) ([]domain.Secret, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SyncSecrets", ctx, userID)
+	ret0, _ := ret[0].([]domain.Secret)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SyncSecrets indicates an expected call of SyncSecrets.
+func (mr *MockGophkeeperRepositoryMockRecorder) SyncSecrets(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncSecrets", reflect.TypeOf((*MockGophkeeperRepository)(nil).SyncSecrets), ctx, userID)
+}
+
 // UpdateSecret mocks base method.
 func (m *MockGophkeeperRepository) UpdateSecret(ctx context.Context, params domain.UpdateSecretParams) (int64, error) {
 	m.ctrl.T.Helper()
@@ -313,6 +328,21 @@ func (m *MockGophkeeperService) Ping(ctx context.Context) error {
 func (mr *MockGophkeeperServiceMockRecorder) Ping(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ping", reflect.TypeOf((*MockGophkeeperService)(nil).Ping), ctx)
+}
+
+// SyncSecrets mocks base method.
+func (m *MockGophkeeperService) SyncSecrets(ctx context.Context, userID int64) ([]domain.Secret, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SyncSecrets", ctx, userID)
+	ret0, _ := ret[0].([]domain.Secret)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SyncSecrets indicates an expected call of SyncSecrets.
+func (mr *MockGophkeeperServiceMockRecorder) SyncSecrets(ctx, userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SyncSecrets", reflect.TypeOf((*MockGophkeeperService)(nil).SyncSecrets), ctx, userID)
 }
 
 // UpdateSecret mocks base method.
