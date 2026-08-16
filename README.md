@@ -28,10 +28,9 @@ Server (with a local mkcert cert for HTTPS):
 
 ```sh
 mkcert -install
-mkcert localhost 127.0.0.1 ::1      # -> ./localhost+2.pem, ./localhost+2-key.pem
 mkdir -p certs
-mv localhost+2.pem      certs/server.pem
-mv localhost+2-key.pem  certs/server-key.pem
+mkcert -cert-file certs/server.pem -key-file certs/server-key.pem localhost 127.0.0.1 ::1
+go run ./cmd/gophkeeper-server -public-key certs/server.pem -private-key certs/server-key.pem
 ```
 
 Client on the local server (mkcert CA is trusted by the system store):
