@@ -9,6 +9,10 @@ A client-server e2e secrets manager to store:
 Secrets are encrypted with Argon2id - AES-256-GCM client-side, the server
 only ever stores ciphertext it cannot read without your master password.
 
+**Live demo:** [Swagger UI](https://gophkeeper.vla8islav-personal.cloud/swagger/index.html#/system/get_api_ping) on a deployed
+instance. Browse and try the API (register to get a token, then **Authorize**
+with `Bearer <token>`).
+
 - **Server** (`cmd/gophkeeper-server`): Go + chi + PostgreSQL (goose migrations).
   Auth (bcrypt + JWT), per-user KDF salt, secret CRUD + sync, optional audit log
 - **Client** (`cmd/gophkeeper-client`): stateless CLI with a local SQLite read
@@ -46,6 +50,23 @@ Run the tests(needs Docker):
 
 ```sh
 go test ./...
+```
+
+## API docs (Swagger)
+
+The server serves an interactive Swagger UI (generated from the handler
+annotations with [swaggo/swag](https://github.com/swaggo/swag)):
+
+- UI: `http(s)://<host>/swagger/index.html`
+- OpenAPI spec: `http(s)://<host>/swagger/doc.json`
+
+Click **Authorize** and paste `Bearer <token>` (the token returned by
+`/api/user/register` or `/api/user/login`) to call the authenticated endpoints.
+
+Regenerate the spec after changing any annotation:
+
+```sh
+swag init -g cmd/gophkeeper-server/main.go -o docs --parseInternal --parseDependency
 ```
 
 ## Production deployment
