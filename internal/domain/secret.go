@@ -14,7 +14,7 @@ type CreateSecretParams struct {
 	Meta    []byte
 }
 
-// no UserID — that comes from the token.
+// no UserID - that comes from the token.
 type CreateSecretRequest struct {
 	ID      uuid.UUID  `json:"id"`
 	Type    SecretType `json:"type"`

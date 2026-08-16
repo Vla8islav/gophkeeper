@@ -39,7 +39,7 @@ func TestStore_PersistsAcrossReopen(t *testing.T) {
 	require.NoError(t, s.SaveSalt([]byte("abc")))
 	require.NoError(t, s.Close())
 
-	// Reopen the same file — a cache must survive process restarts.
+	// Reopen the same file - a cache must survive process restarts.
 	s2, err := Open(path)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = s2.Close() })

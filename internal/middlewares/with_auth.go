@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Vla8islav/gophkeeper/internal/audit"
 	"github.com/Vla8islav/gophkeeper/internal/helpers"
 )
 
@@ -37,6 +38,7 @@ func WithAuth(secret []byte) Middleware {
 				return
 			}
 
+			audit.SetUserID(r.Context(), userID) // annotate the audit RequestData
 			ctx := ContextWithUserID(r.Context(), userID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})

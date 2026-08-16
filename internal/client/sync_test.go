@@ -32,12 +32,10 @@ func TestReconcile(t *testing.T) {
 	require.Equal(t, 1, pulled)
 	require.Equal(t, 1, removed)
 
-	// new secret was pulled into the cache.
 	got, err := store.GetSecret(newID.String())
 	require.NoError(t, err)
 	require.Equal(t, []byte("new"), got.Payload)
 
-	// deleted secret was removed.
 	_, err = store.GetSecret(oldID.String())
 	require.ErrorIs(t, err, localstore.ErrNotCached)
 }

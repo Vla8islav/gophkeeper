@@ -21,7 +21,7 @@ func TestPostgresStorage_CreateUser(t *testing.T) {
 	params := domain.CreateUserParams{
 		Login:        helpers.UniqueLogin("create-user-test"),
 		PasswordHash: "hashed-password",
-		Salt:         []byte{0x01, 0x02, 0x03, 0x04}, // any bytes — repo just stores them
+		Salt:         []byte{0x01, 0x02, 0x03, 0x04}, // any bytes - repo just stores them
 	}
 
 	userID, err := storage.CreateUser(ctx, params)

@@ -7,6 +7,7 @@ import (
 	"mime"
 	"net/http"
 
+	"github.com/Vla8islav/gophkeeper/internal/audit"
 	"github.com/Vla8islav/gophkeeper/internal/domain"
 	"github.com/Vla8islav/gophkeeper/internal/repository"
 )
@@ -33,13 +34,25 @@ Content-Type: application/json
 }
 Возможные коды ответа:
 
-200 — пользователь успешно зарегистрирован и аутентифицирован;
-400 — неверный формат запроса;
-409 — логин уже занят;
-500 — внутренняя ошибка сервера.
+200 - пользователь успешно зарегистрирован и аутентифицирован;
+400 - неверный формат запроса;
+409 - логин уже занят;
+500 - внутренняя ошибка сервера.
 */
 
+// UserRegisterHandler godoc
+// @Summary  Register a new user (returns a JWT)
+// @Tags     auth
+// @Accept   json
+// @Produce  json
+// @Param    request body domain.UserRegisterRequest true "login + password"
+// @Success  200 {object} domain.UserRegisterResponse
+// @Failure  400
+// @Failure  409
+// @Failure  500
+// @Router   /api/user/register [post]
 func (h *Handler) UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
+	audit.SetOperation(r.Context(), "user.register")
 
 	if r.Method != http.MethodPost {
 		h.writeMethodNotAllowed(w, "only POST method is allowed")

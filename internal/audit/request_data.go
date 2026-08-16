@@ -4,54 +4,44 @@ import "context"
 
 type requestDataKey struct{}
 
-// RequestData stores audit metadata which was collected while handling a request
+// RequestData stores audit metadata
 type RequestData struct {
 	Operation string
-	Metrics   []string
+	UserID    int64
+	SecretID  string
 }
 
-// NewRequestData creates an empty RequestData value
 func NewRequestData() *RequestData {
-	return &RequestData{
-		Metrics: make([]string, 0),
-	}
+	return &RequestData{}
 }
 
-// WithRequestData returns a context carrying data as audit request metadata
 func WithRequestData(ctx context.Context, data *RequestData) context.Context {
 	return context.WithValue(ctx, requestDataKey{}, data)
 }
 
-// FromContext returns audit request metadata stored in ctx, if any
+// FromContext returns audit request metadata stored in ctx, if any.
 func FromContext(ctx context.Context) *RequestData {
 	data, _ := ctx.Value(requestDataKey{}).(*RequestData)
 	return data
 }
 
-// AddMetric records name in the RequestData stored in ctx
-func AddMetric(ctx context.Context, name string) {
-	if name == "" {
-		return
+// SetOperation records the operation name in the RequestData stored in ctx.
+func SetOperation(ctx context.Context, operation string) {
+	if data := FromContext(ctx); data != nil {
+		data.Operation = operation
 	}
-
-	data := FromContext(ctx)
-	if data == nil {
-		return
-	}
-
-	data.Metrics = append(data.Metrics, name)
 }
 
-// SetOperation records operation in the RequestData stored in ctx
-func SetOperation(ctx context.Context, operation string) {
-	if operation == "" {
-		return
+// SetUserID records the authenticated user id in the RequestData stored in ctx.
+func SetUserID(ctx context.Context, userID int64) {
+	if data := FromContext(ctx); data != nil {
+		data.UserID = userID
 	}
+}
 
-	data := FromContext(ctx)
-	if data == nil {
-		return
+// SetSecretID records the target secret id in the RequestData stored in ctx.
+func SetSecretID(ctx context.Context, id string) {
+	if data := FromContext(ctx); data != nil {
+		data.SecretID = id
 	}
-
-	data.Operation = operation
 }

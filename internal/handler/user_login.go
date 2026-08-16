@@ -7,6 +7,7 @@ import (
 	"mime"
 	"net/http"
 
+	"github.com/Vla8islav/gophkeeper/internal/audit"
 	"github.com/Vla8islav/gophkeeper/internal/domain"
 	"github.com/Vla8islav/gophkeeper/internal/repository"
 )
@@ -31,13 +32,25 @@ Content-Type: application/json
 }
 Возможные коды ответа:
 
-200 — пользователь успешно аутентифицирован;
-400 — неверный формат запроса;
-401 — неверная пара логин/пароль;
-500 — внутренняя ошибка сервера.
+200 - пользователь успешно аутентифицирован;
+400 - неверный формат запроса;
+401 - неверная пара логин/пароль;
+500 - внутренняя ошибка сервера.
 */
 
+// UserLoginHandler godoc
+// @Summary  Authenticate (returns a JWT)
+// @Tags     auth
+// @Accept   json
+// @Produce  json
+// @Param    request body domain.UserLoginRequest true "login + password"
+// @Success  200 {object} domain.UserLoginResponse
+// @Failure  400
+// @Failure  401
+// @Failure  500
+// @Router   /api/user/login [post]
 func (h *Handler) UserLoginHandler(w http.ResponseWriter, r *http.Request) {
+	audit.SetOperation(r.Context(), "user.login")
 
 	if r.Method != http.MethodPost {
 		h.writeMethodNotAllowed(w, "only POST method is allowed")

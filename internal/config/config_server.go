@@ -22,6 +22,7 @@ type OptionsServer struct {
 	AuthTokenSecret  OptionalString `env:"AUTH_TOKEN_SECRET" json:"auth_token_secret"`
 	PublicCertKey    OptionalString `env:"PUBLIC_CERT_KEY" json:"public_cert_key"`
 	PrivateKey       OptionalString `env:"PRIVATE_KEY" json:"private_key"`
+	AuditLogPath     OptionalString `env:"AUDIT_LOG_PATH" json:"audit_log_path"`
 	Config           OptionalString `env:"CONFIG" json:"-"`
 	logger           *zap.Logger
 }
@@ -48,6 +49,9 @@ func logSetFlagsServer(options *OptionsServer) {
 	}
 	if options.PrivateKey.BeenSet {
 		fields = append(fields, zap.String("-private-key", options.PrivateKey.Value))
+	}
+	if options.AuditLogPath.BeenSet {
+		fields = append(fields, zap.String("-audit-log", options.AuditLogPath.Value))
 	}
 	if options.Config.BeenSet {
 		fields = append(fields, zap.String("-config", options.Config.Value))
@@ -93,6 +97,12 @@ func logSetEnvServer(options *OptionsServer) {
 			options.PrivateKey.Value,
 		))
 	}
+	if options.AuditLogPath.BeenSet {
+		fields = append(fields, zap.String(
+			"AUDIT_LOG_PATH",
+			options.AuditLogPath.Value,
+		))
+	}
 	if options.Config.BeenSet {
 		fields = append(fields, zap.String("CONFIG", options.Config.Value))
 	}
@@ -135,6 +145,12 @@ func logConfigOptionsServer(options *OptionsServer) {
 		fields = append(fields, zap.String(
 			"private_key",
 			options.PrivateKey.Value,
+		))
+	}
+	if options.AuditLogPath.BeenSet {
+		fields = append(fields, zap.String(
+			"audit_log_path",
+			options.AuditLogPath.Value,
 		))
 	}
 	if len(fields) == 0 {
@@ -201,6 +217,10 @@ func ReadFlagsServer(args []string, logger *zap.Logger) (*OptionsServer, error) 
 			Value:   "",
 			BeenSet: false,
 		},
+		AuditLogPath: OptionalString{
+			Value:   "", // empty = audit disabled
+			BeenSet: false,
+		},
 		Config: OptionalString{
 			Value:   "",
 			BeenSet: false,
@@ -255,6 +275,10 @@ func mergeOptionsServer(mergeInto *OptionsServer, newValues OptionsServer) {
 		mergeInto.PrivateKey = newValues.PrivateKey
 		mergeInto.PrivateKey.BeenSet = true
 	}
+	if newValues.AuditLogPath.BeenSet {
+		mergeInto.AuditLogPath = newValues.AuditLogPath
+		mergeInto.AuditLogPath.BeenSet = true
+	}
 	if newValues.Config.BeenSet {
 		mergeInto.Config = newValues.Config
 		mergeInto.Config.BeenSet = true
@@ -281,6 +305,7 @@ func getOptionsServer(args []string, logger *zap.Logger) (*OptionsServer, error)
 	fs.Var(&opt.AuthTokenSecret, "s", "секретный ключ для генерации токенов авторизации")
 	fs.Var(&opt.PublicCertKey, "public-key", "путь до публичного ключа")
 	fs.Var(&opt.PrivateKey, "private-key", "путь до приватного ключа")
+	fs.Var(&opt.AuditLogPath, "audit-log", "путь до файла аудита (JSONL); пусто = выключено")
 	fs.Var(&opt.Config, "config", "путь до файла с конфигурацией приложения")
 	fs.Var(&opt.Config, "c", "путь до файла с конфигурацией приложения")
 	if err := fs.Parse(args); err != nil {

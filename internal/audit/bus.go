@@ -5,13 +5,14 @@ import (
 	"context"
 )
 
-// Event describes an audited metrics operation
-// generate:reset
+// Event describes an audited request against the secrets API.
 type Event struct {
 	Time       UnixTime `json:"ts"`
-	Metrics    []string `json:"metrics"`
-	RemoteAddr string   `json:"ip_address"`
 	Operation  string   `json:"operation"`
+	UserID     int64    `json:"user_id"`
+	SecretID   string   `json:"secret_id,omitempty"`
+	RemoteAddr string   `json:"remote_addr"`
+	Status     int      `json:"status"`
 }
 
 // Sink writes audit events to a destination

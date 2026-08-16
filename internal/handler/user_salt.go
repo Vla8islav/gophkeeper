@@ -4,11 +4,22 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/Vla8islav/gophkeeper/internal/audit"
 	"github.com/Vla8islav/gophkeeper/internal/domain"
 	"github.com/Vla8islav/gophkeeper/internal/middlewares"
 )
 
+// UserSaltHandler godoc
+// @Summary  Get this user's KDF salt (for client-side key derivation)
+// @Tags     auth
+// @Produce  json
+// @Security BearerAuth
+// @Success  200 {object} domain.SaltResponse
+// @Failure  401
+// @Failure  500
+// @Router   /api/user/salt [get]
 func (h *Handler) UserSaltHandler(w http.ResponseWriter, r *http.Request) {
+	audit.SetOperation(r.Context(), "user.salt")
 	userID, ok := middlewares.UserIDFromContext(r.Context())
 	if !ok {
 		h.writeInternalServerError(w, "user id missing from context")
