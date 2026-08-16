@@ -28,7 +28,7 @@ func TestGophkeeperService_UpdateSecret_Success(t *testing.T) {
 	repository.EXPECT().
 		UpdateSecret(gomock.Any(), gomock.Any()).
 		DoAndReturn(func(_ context.Context, params domain.UpdateSecretParams) (int64, error) {
-			// Trust boundary: userID from the token, id from the URL — both land correctly,
+			// Trust boundary: userID from the token, id from the URL - both land correctly,
 			// and the body fields map through.
 			require.Equal(t, userID, params.UserID)
 			require.Equal(t, id, params.ID)

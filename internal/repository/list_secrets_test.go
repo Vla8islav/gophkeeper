@@ -29,7 +29,7 @@ func TestPostgresStorage_ListSecrets(t *testing.T) {
 		want[p.ID] = p
 	}
 
-	// one secret for B — must NOT appear in A's list
+	// one secret for B - must NOT appear in A's list
 	bSecret := domain.CreateSecretParams{
 		ID:      uuid.New(),
 		UserID:  userB,

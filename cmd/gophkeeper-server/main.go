@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/Vla8islav/gophkeeper/internal/config"
 	_ "github.com/Vla8islav/gophkeeper/docs" // generated OpenAPI spec (swag init)
+	"github.com/Vla8islav/gophkeeper/internal/config"
 	"github.com/Vla8islav/gophkeeper/internal/repository"
 	"github.com/Vla8islav/gophkeeper/internal/run"
 	"go.uber.org/zap"
@@ -19,7 +19,7 @@ import (
 // @securityDefinitions.apikey  BearerAuth
 // @in                          header
 // @name                        Authorization
-// @description                 Paste "Bearer <token>" — the token returned by /api/user/login or /api/user/register.
+// @description                 Paste "Bearer <token>" - the token returned by /api/user/login or /api/user/register.
 func main() {
 	lg, err := zap.NewProduction()
 	if err != nil {

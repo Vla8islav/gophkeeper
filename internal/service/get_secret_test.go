@@ -28,7 +28,7 @@ func TestGophkeeperService_GetSecret_Success(t *testing.T) {
 	}
 
 	// Pinning userID and id in the matcher proves the service forwards both
-	// unchanged (userID from the token, id from the URL) — no swapping or mutation.
+	// unchanged (userID from the token, id from the URL) - no swapping or mutation.
 	repository.EXPECT().
 		GetSecret(gomock.Any(), userID, id).
 		Return(want, nil)

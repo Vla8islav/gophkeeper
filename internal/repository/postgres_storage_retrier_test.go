@@ -57,7 +57,7 @@ func TestWithRetryTx_RollsBackOnError(t *testing.T) {
 	})
 	require.ErrorIs(t, err, sentinel)
 
-	// The insert was rolled back — zero rows persist.
+	// The insert was rolled back - zero rows persist.
 	var count int
 	require.NoError(t, storage.db.QueryRowContext(ctx, `SELECT count(*) FROM tx_tmp_rollback`).Scan(&count))
 	require.Zero(t, count)

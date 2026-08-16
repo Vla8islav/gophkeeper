@@ -33,5 +33,7 @@ load-testing/perf-*certs/
 
 certs/*
 
-# deployment secrets — never commit real env
+# deployment secrets - never commit real env
 .env
+
+gophkeeper-cli

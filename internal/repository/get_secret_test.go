@@ -89,7 +89,7 @@ func TestPostgresStorage_GetSecret_NotFoundWhenSoftDeleted(t *testing.T) {
 	}
 	require.NoError(t, storage.CreateSecret(ctx, params))
 
-	// No DeleteSecret method yet — soft-delete directly to test the WHERE clause.
+	// No DeleteSecret method yet - soft-delete directly to test the WHERE clause.
 	_, err := storage.db.ExecContext(ctx,
 		`UPDATE secrets SET deleted = TRUE WHERE id = $1`, params.ID)
 	require.NoError(t, err)

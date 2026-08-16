@@ -79,7 +79,7 @@ func runAdd(cfg *config.OptionsClient, args []string) error {
 		return err
 	}
 
-	// Cache the ciphertext locally (version 1, not dirty — already pushed).
+	// Cache the ciphertext locally (version 1, not dirty - already pushed).
 	if err := store.SaveSecret(localstore.Secret{
 		ID:      id.String(),
 		Type:    string(secretType),

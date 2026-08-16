@@ -83,7 +83,7 @@ func (c *APIClient) ListSecrets(token string) ([]domain.SecretSummaryResponse, e
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusUnauthorized {
-		return nil, fmt.Errorf("unauthorized — try logging in again")
+		return nil, fmt.Errorf("unauthorized - try logging in again")
 	}
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("server returned %s", resp.Status)
@@ -132,7 +132,7 @@ func (c *APIClient) GetUserSalt(token string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == http.StatusUnauthorized {
-		return nil, fmt.Errorf("unauthorized — try logging in again")
+		return nil, fmt.Errorf("unauthorized - try logging in again")
 	}
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("server returned %s", resp.Status)
@@ -164,7 +164,7 @@ func (c *APIClient) DeleteSecret(token string, id uuid.UUID) error {
 	case http.StatusNotFound:
 		return fmt.Errorf("secret %s not found", id)
 	case http.StatusUnauthorized:
-		return fmt.Errorf("unauthorized — try logging in again")
+		return fmt.Errorf("unauthorized - try logging in again")
 	default:
 		return fmt.Errorf("server returned %s", resp.Status)
 	}
@@ -184,7 +184,7 @@ func (c *APIClient) SyncSecrets(token string) ([]domain.SyncSecretResponse, erro
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusUnauthorized {
-		return nil, fmt.Errorf("unauthorized — try logging in again")
+		return nil, fmt.Errorf("unauthorized - try logging in again")
 	}
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("server returned %s", resp.Status)
@@ -224,11 +224,11 @@ func (c *APIClient) UpdateSecret(token string, id uuid.UUID, req domain.UpdateSe
 		}
 		return out.Version, nil
 	case http.StatusConflict:
-		return 0, fmt.Errorf("version conflict — run `sync` and try again")
+		return 0, fmt.Errorf("version conflict - run `sync` and try again")
 	case http.StatusNotFound:
 		return 0, fmt.Errorf("secret %s not found", id)
 	case http.StatusUnauthorized:
-		return 0, fmt.Errorf("unauthorized — try logging in again")
+		return 0, fmt.Errorf("unauthorized - try logging in again")
 	default:
 		return 0, fmt.Errorf("server returned %s", resp.Status)
 	}

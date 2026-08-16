@@ -23,7 +23,7 @@ func Run(ctx context.Context, db domain.GophkeeperRepository, cfg *config.Option
 	h := handler.NewHandler(srvApp, logger)
 	r := handler.NewRouter(h, cfg)
 
-	// Middleware chain — first arg to ChainMiddlewares is the outermost wrapper
+	// Middleware chain - first arg to ChainMiddlewares is the outermost wrapper
 	mws := []middlewares.Middleware{middlewares.WithLogging(logger)}
 	if cfg.AuditLogPath.Value != "" {
 		sink := audit.NewFileSink(cfg.AuditLogPath.Value)

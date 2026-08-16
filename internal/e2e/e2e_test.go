@@ -157,7 +157,7 @@ func TestE2E_RegisterLoginCreateSecret(t *testing.T) {
 	resp.Body.Close()
 
 	resp = doJSON(t, srv, http.MethodGet, "/api/secret/get/"+secretID.String(), intruder.Token, nil)
-	require.Equal(t, http.StatusNotFound, resp.StatusCode) // not 403 — non-leaky
+	require.Equal(t, http.StatusNotFound, resp.StatusCode) // not 403 - non-leaky
 	resp.Body.Close()
 
 	// --- List path ---
@@ -172,7 +172,7 @@ func TestE2E_RegisterLoginCreateSecret(t *testing.T) {
 	require.Equal(t, secretID, list[0].ID)
 	require.Equal(t, domain.SecretTypeText, list[0].Type)
 
-	// L2. A brand-new user gets an empty list — and it must be [] , not null.
+	// L2. A brand-new user gets an empty list - and it must be [] , not null.
 	resp = doJSON(t, srv, http.MethodPost, "/api/user/register", "",
 		[]byte(`{"login":"e2e-list-other","password":"pw"}`))
 	require.Equal(t, http.StatusOK, resp.StatusCode)
@@ -223,7 +223,7 @@ func TestE2E_RegisterLoginCreateSecret(t *testing.T) {
 	require.Equal(t, http.StatusConflict, resp.StatusCode)
 	resp.Body.Close()
 
-	// U4. The rejected write must NOT have landed — still v2, still "hello-v2"
+	// U4. The rejected write must NOT have landed - still v2, still "hello-v2"
 	resp = doJSON(t, srv, http.MethodGet, "/api/secret/get/"+secretID.String(), token, nil)
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 	var afterConflict domain.GetSecretResponse
@@ -264,7 +264,7 @@ func TestE2E_RegisterLoginCreateSecret(t *testing.T) {
 	resp.Body.Close()
 	require.Len(t, salt1.Salt, 16)
 
-	// S2. The salt is STABLE across calls — same bytes every time.
+	// S2. The salt is STABLE across calls - same bytes every time.
 	resp = doJSON(t, srv, http.MethodGet, "/api/user/salt", token, nil)
 	require.Equal(t, http.StatusOK, resp.StatusCode)
 	var salt2 domain.SaltResponse
