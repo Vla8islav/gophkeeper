@@ -46,22 +46,7 @@ func (h *Handler) writeConflict(w http.ResponseWriter, msg string) {
 	http.Error(w, msg, http.StatusConflict)
 }
 
-func (h *Handler) writePaymentRequired(w http.ResponseWriter, msg string) {
-	h.logger.Info("not enough money", zap.String("msg", msg))
-	http.Error(w, msg, http.StatusPaymentRequired)
-}
-
-func (h *Handler) writeUnprocessableEntity(w http.ResponseWriter, msg string) {
-	h.logger.Info("incorrect request checksum", zap.String("msg", msg))
-	http.Error(w, msg, http.StatusUnprocessableEntity)
-}
-
 func (h *Handler) writeMethodNotAllowed(w http.ResponseWriter, msg string) {
 	h.logger.Info("method not allowed", zap.String("msg", msg))
 	http.Error(w, msg, http.StatusMethodNotAllowed)
-}
-
-func (h *Handler) writeNoContent(w http.ResponseWriter, msg string) {
-	h.logger.Info("found no content", zap.String("msg", msg))
-	w.WriteHeader(http.StatusNoContent)
 }
