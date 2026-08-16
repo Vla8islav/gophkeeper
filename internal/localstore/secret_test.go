@@ -53,3 +53,29 @@ func TestStore_GetSecret_SoftDeletedIsHidden(t *testing.T) {
 	_, err := s.GetSecret("gone")
 	require.ErrorIs(t, err, ErrNotCached) // deleted reads as absent
 }
+
+func TestStore_ListSecrets(t *testing.T) {
+	s := openTestStore(t)
+	require.NoError(t, s.SaveSecret(Secret{ID: "a", Type: "text", Payload: []byte("p"), Version: 1}))
+	require.NoError(t, s.SaveSecret(Secret{ID: "b", Type: "card", Payload: []byte("p"), Version: 1}))
+	require.NoError(t, s.SaveSecret(Secret{ID: "gone", Type: "text", Payload: []byte("p"), Version: 1, Deleted: true}))
+
+	list, err := s.ListSecrets()
+	require.NoError(t, err)
+	require.Len(t, list, 2) // deleted one excluded
+
+	ids := map[string]bool{}
+	for _, sec := range list {
+		ids[sec.ID] = true
+	}
+	require.True(t, ids["a"])
+	require.True(t, ids["b"])
+	require.False(t, ids["gone"]) // tombstone not listed
+}
+
+func TestStore_ListSecrets_Empty(t *testing.T) {
+	s := openTestStore(t)
+	list, err := s.ListSecrets()
+	require.NoError(t, err)
+	require.Empty(t, list)
+}

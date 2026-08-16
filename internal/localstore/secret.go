@@ -53,3 +53,28 @@ func (s *Store) GetSecret(id string) (Secret, error) {
 	}
 	return sec, nil
 }
+
+func (s *Store) ListSecrets() ([]Secret, error) {
+	rows, err := s.db.Query(
+		`SELECT id, type, meta, version
+                 FROM secrets
+                 WHERE deleted = 0
+                 ORDER BY updated_at DESC, id`)
+	if err != nil {
+		return nil, fmt.Errorf("list secrets: %w", err)
+	}
+	defer rows.Close()
+
+	var out []Secret
+	for rows.Next() {
+		var sec Secret
+		if err := rows.Scan(&sec.ID, &sec.Type, &sec.Meta, &sec.Version); err != nil {
+			return nil, fmt.Errorf("scan secret: %w", err)
+		}
+		out = append(out, sec)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate secrets: %w", err)
+	}
+	return out, nil
+}
