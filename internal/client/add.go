@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/google/uuid"
 
@@ -36,7 +37,6 @@ func runAdd(cfg *config.OptionsClient, args []string) error {
 	}
 	defer store.Close()
 
-	// Derive the encryption key: master password + cached salt.
 	masterPw, err := readPassword("master password: ")
 	if err != nil {
 		return err
@@ -47,7 +47,6 @@ func runAdd(cfg *config.OptionsClient, args []string) error {
 	}
 	key := DeriveKey(masterPw, salt)
 
-	// Gather the type-specific plaintext, then encrypt it.
 	plaintext, err := gatherPlaintext(secretType)
 	if err != nil {
 		return err
@@ -59,13 +58,12 @@ func runAdd(cfg *config.OptionsClient, args []string) error {
 
 	var metaCipher []byte
 	if label != "" {
-		metaCipher, err = Encrypt(key, []byte(label)) // meta is encrypted too
+		metaCipher, err = Encrypt(key, []byte(label))
 		if err != nil {
 			return err
 		}
 	}
 
-	// Client-generated UUID (the decision that pays off here).
 	id := uuid.New()
 
 	api, err := NewAPIClient(cfg.ServerAddress.Value, cfg.CACertPath.Value)
@@ -137,7 +135,15 @@ func gatherPlaintext(t domain.SecretType) ([]byte, error) {
 		return json.Marshal(Card{Number: number, Holder: holder, Expiry: expiry, CVV: cvv})
 
 	case domain.SecretTypeBinary:
-		return nil, errors.New("binary add not implemented yet (will take a file path)")
+		path, err := readLine("file path: ")
+		if err != nil {
+			return nil, err
+		}
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return nil, fmt.Errorf("read file %s: %w", path, err)
+		}
+		return data, nil
 
 	default:
 		return nil, fmt.Errorf("unsupported type %q", t)

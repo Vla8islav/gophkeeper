@@ -66,6 +66,16 @@ func runGet(cfg *config.OptionsClient, args []string) error {
 }
 
 func displaySecret(t domain.SecretType, plaintext []byte, label string) error {
+	if t == domain.SecretTypeBinary {
+		// cannot really display binary in console
+		if label != "" {
+			fmt.Fprintln(os.Stderr, "label:", label)
+		}
+		fmt.Fprintln(os.Stderr, "type:  binary")
+		_, err := os.Stdout.Write(plaintext)
+		return err
+	}
+
 	if label != "" {
 		fmt.Println("label:", label)
 	}
