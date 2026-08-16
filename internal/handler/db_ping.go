@@ -6,6 +6,12 @@ import (
 	"go.uber.org/zap"
 )
 
+// DBPing godoc
+// @Summary  Health check (database ping)
+// @Tags     system
+// @Success  200
+// @Failure  500
+// @Router   /api/ping [get]
 func (h *Handler) DBPing(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method != http.MethodGet {

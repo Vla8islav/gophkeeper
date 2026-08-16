@@ -11,6 +11,17 @@ import (
 	"github.com/google/uuid"
 )
 
+// SecretDeleteHandler godoc
+// @Summary  Delete a secret (soft delete)
+// @Tags     secrets
+// @Security BearerAuth
+// @Param    id path string true "secret UUID"
+// @Success  204
+// @Failure  400
+// @Failure  401
+// @Failure  404
+// @Failure  500
+// @Router   /api/secret/delete/{id} [delete]
 func (h *Handler) SecretDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	audit.SetOperation(r.Context(), "secret.delete")
 	userID, ok := middlewares.UserIDFromContext(r.Context())
@@ -24,6 +35,7 @@ func (h *Handler) SecretDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		h.writeBadRequest(w, "invalid secret id: "+err.Error())
 		return
 	}
+	audit.SetSecretID(r.Context(), id.String())
 
 	err = h.service.DeleteSecret(r.Context(), userID, id)
 	if errors.Is(err, domain.ErrInvalidSecretID) {

@@ -15,6 +15,21 @@ import (
 	"github.com/Vla8islav/gophkeeper/internal/middlewares"
 )
 
+// SecretUpdateHandler godoc
+// @Summary  Update a secret (optimistic concurrency via version)
+// @Tags     secrets
+// @Accept   json
+// @Produce  json
+// @Security BearerAuth
+// @Param    id      path string                      true "secret UUID"
+// @Param    request body domain.UpdateSecretRequest  true "new ciphertext + the version you last saw"
+// @Success  200 {object} domain.UpdateSecretResponse
+// @Failure  400
+// @Failure  401
+// @Failure  404
+// @Failure  409
+// @Failure  500
+// @Router   /api/secret/update/{id} [put]
 func (h *Handler) SecretUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	audit.SetOperation(r.Context(), "secret.update")
 	mimeType, _, _ := mime.ParseMediaType(r.Header.Get("Content-Type"))
@@ -34,6 +49,7 @@ func (h *Handler) SecretUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		h.writeBadRequest(w, "invalid secret id: "+err.Error())
 		return
 	}
+	audit.SetSecretID(r.Context(), id.String())
 
 	requestBody, err := io.ReadAll(r.Body)
 	if err != nil {

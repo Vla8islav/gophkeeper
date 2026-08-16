@@ -38,6 +38,17 @@ Content-Type: application/json
 500 — внутренняя ошибка сервера.
 */
 
+// UserLoginHandler godoc
+// @Summary  Authenticate (returns a JWT)
+// @Tags     auth
+// @Accept   json
+// @Produce  json
+// @Param    request body domain.UserLoginRequest true "login + password"
+// @Success  200 {object} domain.UserLoginResponse
+// @Failure  400
+// @Failure  401
+// @Failure  500
+// @Router   /api/user/login [post]
 func (h *Handler) UserLoginHandler(w http.ResponseWriter, r *http.Request) {
 	audit.SetOperation(r.Context(), "user.login")
 

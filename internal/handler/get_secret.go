@@ -13,6 +13,18 @@ import (
 	"github.com/Vla8islav/gophkeeper/internal/middlewares"
 )
 
+// SecretGetHandler godoc
+// @Summary  Get one secret by id
+// @Tags     secrets
+// @Produce  json
+// @Security BearerAuth
+// @Param    id path string true "secret UUID"
+// @Success  200 {object} domain.GetSecretResponse
+// @Failure  400
+// @Failure  401
+// @Failure  404
+// @Failure  500
+// @Router   /api/secret/get/{id} [get]
 func (h *Handler) SecretGetHandler(w http.ResponseWriter, r *http.Request) {
 	audit.SetOperation(r.Context(), "secret.get")
 	userID, ok := middlewares.UserIDFromContext(r.Context())
@@ -26,6 +38,7 @@ func (h *Handler) SecretGetHandler(w http.ResponseWriter, r *http.Request) {
 		h.writeBadRequest(w, "invalid secret id: "+err.Error())
 		return
 	}
+	audit.SetSecretID(r.Context(), id.String())
 
 	secret, err := h.service.GetSecret(r.Context(), userID, id)
 	if errors.Is(err, domain.ErrInvalidSecretID) {

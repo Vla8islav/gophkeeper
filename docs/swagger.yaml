@@ -1,0 +1,395 @@
+basePath: /
+definitions:
+  github_com_Vla8islav_gophkeeper_internal_domain.CreateSecretRequest:
+    properties:
+      id:
+        type: string
+      meta:
+        items:
+          type: integer
+        type: array
+      payload:
+        items:
+          type: integer
+        type: array
+      type:
+        $ref: '#/definitions/github_com_Vla8islav_gophkeeper_internal_domain.SecretType'
+    type: object
+  github_com_Vla8islav_gophkeeper_internal_domain.GetSecretResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      meta:
+        items:
+          type: integer
+        type: array
+      payload:
+        items:
+          type: integer
+        type: array
+      type:
+        $ref: '#/definitions/github_com_Vla8islav_gophkeeper_internal_domain.SecretType'
+      updated_at:
+        type: string
+      version:
+        type: integer
+    type: object
+  github_com_Vla8islav_gophkeeper_internal_domain.SaltResponse:
+    properties:
+      salt:
+        description: base64 in JSON, decodes to []byte client-side
+        items:
+          type: integer
+        type: array
+    type: object
+  github_com_Vla8islav_gophkeeper_internal_domain.SecretSummaryResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      meta:
+        items:
+          type: integer
+        type: array
+      type:
+        $ref: '#/definitions/github_com_Vla8islav_gophkeeper_internal_domain.SecretType'
+      updated_at:
+        type: string
+      version:
+        type: integer
+    type: object
+  github_com_Vla8islav_gophkeeper_internal_domain.SecretType:
+    enum:
+    - login_password
+    - text
+    - binary
+    - card
+    type: string
+    x-enum-varnames:
+    - SecretTypeLoginPassword
+    - SecretTypeText
+    - SecretTypeBinary
+    - SecretTypeCard
+  github_com_Vla8islav_gophkeeper_internal_domain.SyncSecretResponse:
+    properties:
+      deleted:
+        type: boolean
+      id:
+        type: string
+      meta:
+        items:
+          type: integer
+        type: array
+      payload:
+        items:
+          type: integer
+        type: array
+      type:
+        $ref: '#/definitions/github_com_Vla8islav_gophkeeper_internal_domain.SecretType'
+      updated_at:
+        type: string
+      version:
+        type: integer
+    type: object
+  github_com_Vla8islav_gophkeeper_internal_domain.UpdateSecretRequest:
+    properties:
+      meta:
+        items:
+          type: integer
+        type: array
+      payload:
+        items:
+          type: integer
+        type: array
+      version:
+        type: integer
+    type: object
+  github_com_Vla8islav_gophkeeper_internal_domain.UpdateSecretResponse:
+    properties:
+      version:
+        description: version bump
+        type: integer
+    type: object
+  github_com_Vla8islav_gophkeeper_internal_domain.UserLoginRequest:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  github_com_Vla8islav_gophkeeper_internal_domain.UserLoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  github_com_Vla8islav_gophkeeper_internal_domain.UserRegisterRequest:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  github_com_Vla8islav_gophkeeper_internal_domain.UserRegisterResponse:
+    properties:
+      token:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: End-to-end-encrypted secrets manager. Secrets are encrypted on the
+    client (Argon2id + AES-256-GCM); the server stores only ciphertext it cannot read.
+  title: GophKeeper API
+  version: "1.0"
+paths:
+  /api/ping:
+    get:
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+      summary: Health check (database ping)
+      tags:
+      - system
+  /api/secret/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: encrypted secret (payload/meta are ciphertext)
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_Vla8islav_gophkeeper_internal_domain.CreateSecretRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "409":
+          description: Conflict
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Create an encrypted secret
+      tags:
+      - secrets
+  /api/secret/delete/{id}:
+    delete:
+      parameters:
+      - description: secret UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Delete a secret (soft delete)
+      tags:
+      - secrets
+  /api/secret/get/{id}:
+    get:
+      parameters:
+      - description: secret UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_Vla8islav_gophkeeper_internal_domain.GetSecretResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Get one secret by id
+      tags:
+      - secrets
+  /api/secret/list:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_Vla8islav_gophkeeper_internal_domain.SecretSummaryResponse'
+            type: array
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: List secret metadata (no payloads)
+      tags:
+      - secrets
+  /api/secret/sync:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_Vla8islav_gophkeeper_internal_domain.SyncSecretResponse'
+            type: array
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Full sync feed (all secrets incl. tombstones, with ciphertext)
+      tags:
+      - secrets
+  /api/secret/update/{id}:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: secret UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: new ciphertext + the version you last saw
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_Vla8islav_gophkeeper_internal_domain.UpdateSecretRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_Vla8islav_gophkeeper_internal_domain.UpdateSecretResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not Found
+        "409":
+          description: Conflict
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Update a secret (optimistic concurrency via version)
+      tags:
+      - secrets
+  /api/user/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: login + password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_Vla8islav_gophkeeper_internal_domain.UserLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_Vla8islav_gophkeeper_internal_domain.UserLoginResponse'
+        "400":
+          description: Bad Request
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      summary: Authenticate (returns a JWT)
+      tags:
+      - auth
+  /api/user/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: login + password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_Vla8islav_gophkeeper_internal_domain.UserRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_Vla8islav_gophkeeper_internal_domain.UserRegisterResponse'
+        "400":
+          description: Bad Request
+        "409":
+          description: Conflict
+        "500":
+          description: Internal Server Error
+      summary: Register a new user (returns a JWT)
+      tags:
+      - auth
+  /api/user/salt:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_Vla8islav_gophkeeper_internal_domain.SaltResponse'
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      security:
+      - BearerAuth: []
+      summary: Get this user's KDF salt (for client-side key derivation)
+      tags:
+      - auth
+securityDefinitions:
+  BearerAuth:
+    description: Paste "Bearer <token>" — the token returned by /api/user/login or
+      /api/user/register.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

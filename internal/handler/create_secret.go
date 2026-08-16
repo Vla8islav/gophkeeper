@@ -12,6 +12,19 @@ import (
 	"github.com/Vla8islav/gophkeeper/internal/middlewares"
 )
 
+// SecretCreateHandler godoc
+// @Summary  Create an encrypted secret
+// @Tags     secrets
+// @Accept   json
+// @Produce  json
+// @Security BearerAuth
+// @Param    request body domain.CreateSecretRequest true "encrypted secret (payload/meta are ciphertext)"
+// @Success  201
+// @Failure  400
+// @Failure  401
+// @Failure  409
+// @Failure  500
+// @Router   /api/secret/create [post]
 func (h *Handler) SecretCreateHandler(w http.ResponseWriter, r *http.Request) {
 	audit.SetOperation(r.Context(), "secret.create")
 
@@ -40,6 +53,7 @@ func (h *Handler) SecretCreateHandler(w http.ResponseWriter, r *http.Request) {
 		h.writeBadRequest(w, "couldn't parse request body: "+err.Error())
 		return
 	}
+	audit.SetSecretID(r.Context(), req.ID.String())
 
 	err = h.service.CreateSecret(r.Context(), userID, req)
 	if errors.Is(err, domain.ErrInvalidSecretType) {

@@ -40,6 +40,17 @@ Content-Type: application/json
 500 — внутренняя ошибка сервера.
 */
 
+// UserRegisterHandler godoc
+// @Summary  Register a new user (returns a JWT)
+// @Tags     auth
+// @Accept   json
+// @Produce  json
+// @Param    request body domain.UserRegisterRequest true "login + password"
+// @Success  200 {object} domain.UserRegisterResponse
+// @Failure  400
+// @Failure  409
+// @Failure  500
+// @Router   /api/user/register [post]
 func (h *Handler) UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	audit.SetOperation(r.Context(), "user.register")
 

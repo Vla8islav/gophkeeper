@@ -9,6 +9,15 @@ import (
 	"github.com/Vla8islav/gophkeeper/internal/middlewares"
 )
 
+// SecretsListHandler godoc
+// @Summary  List secret metadata (no payloads)
+// @Tags     secrets
+// @Produce  json
+// @Security BearerAuth
+// @Success  200 {array} domain.SecretSummaryResponse
+// @Failure  401
+// @Failure  500
+// @Router   /api/secret/list [get]
 func (h *Handler) SecretsListHandler(w http.ResponseWriter, r *http.Request) {
 	audit.SetOperation(r.Context(), "secret.list")
 	userID, ok := middlewares.UserIDFromContext(r.Context())

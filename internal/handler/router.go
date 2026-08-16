@@ -3,6 +3,8 @@ package handler
 import (
 	"net/http"
 
+	httpSwagger "github.com/swaggo/http-swagger/v2"
+
 	"github.com/Vla8islav/gophkeeper/internal/config"
 	"github.com/Vla8islav/gophkeeper/internal/middlewares"
 	"github.com/go-chi/chi/v5"
@@ -12,6 +14,9 @@ import (
 func NewRouter(h *Handler, cfg *config.OptionsServer) http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.StripSlashes)
+
+	// Swagger UI (public): browse the API docs at /swagger/index.html
+	r.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	r.Get("/api/ping", h.DBPing)
 	r.Post("/api/user/register", h.UserRegisterHandler)
