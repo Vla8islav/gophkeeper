@@ -1,0 +1,7 @@
+{
+  "address": "localhost:8080",
+  "address_grpc": "localhost:9090",
+  "report_interval": "1s",
+  "poll_interval": "1s",
+  "crypto_key": "/Users/vla8islav/public-cert-metrics.pem"
+}
