@@ -16,148 +16,14 @@ import (
 //
 // Values' order of precedence: environment vars, command-line flags, config file, defaults.
 type OptionsServer struct {
-	ServerAddress    OptionalString `env:"RUN_ADDRESS" json:"server_address"`
-	DatabaseURI      OptionalString `env:"DATABASE_URI" json:"database_uri"`
-	MigrationsFolder OptionalString `env:"MIGRATIONS_FOLDER" json:"migrations_folder"`
-	AuthTokenSecret  OptionalString `env:"AUTH_TOKEN_SECRET" json:"auth_token_secret"`
-	PublicCertKey    OptionalString `env:"PUBLIC_CERT_KEY" json:"public_cert_key"`
-	PrivateKey       OptionalString `env:"PRIVATE_KEY" json:"private_key"`
-	AuditLogPath     OptionalString `env:"AUDIT_LOG_PATH" json:"audit_log_path"`
-	Config           OptionalString `env:"CONFIG" json:"-"`
-	logger           *zap.Logger
-}
-
-func logSetFlagsServer(options *OptionsServer) {
-	if options == nil {
-		return
-	}
-	fields := make([]zap.Field, 0)
-	if options.ServerAddress.BeenSet {
-		fields = append(fields, zap.String("-a", options.ServerAddress.Value))
-	}
-	if options.DatabaseURI.BeenSet {
-		fields = append(fields, zap.String("-d", options.DatabaseURI.Value))
-	}
-	if options.MigrationsFolder.BeenSet {
-		fields = append(fields, zap.String("-m", options.MigrationsFolder.Value))
-	}
-	if options.AuthTokenSecret.BeenSet {
-		fields = append(fields, zap.String("-s", options.AuthTokenSecret.Value))
-	}
-	if options.PublicCertKey.BeenSet {
-		fields = append(fields, zap.String("-public-key", options.PublicCertKey.Value))
-	}
-	if options.PrivateKey.BeenSet {
-		fields = append(fields, zap.String("-private-key", options.PrivateKey.Value))
-	}
-	if options.AuditLogPath.BeenSet {
-		fields = append(fields, zap.String("-audit-log", options.AuditLogPath.Value))
-	}
-	if options.Config.BeenSet {
-		fields = append(fields, zap.String("-config", options.Config.Value))
-	}
-	if len(fields) == 0 {
-		options.logger.Info("no command-line flags were set")
-		return
-	}
-	options.logger.Info("command line options", fields...)
-}
-func logSetEnvServer(options *OptionsServer) {
-	if options == nil {
-		return
-	}
-	fields := make([]zap.Field, 0)
-	if options.ServerAddress.BeenSet {
-		fields = append(fields, zap.String("RUN_ADDRESS", options.ServerAddress.Value))
-	}
-	if options.DatabaseURI.BeenSet {
-		fields = append(fields, zap.String("DATABASE_URI", options.DatabaseURI.Value))
-	}
-	if options.MigrationsFolder.BeenSet {
-		fields = append(fields, zap.String(
-			"MIGRATIONS_FOLDER",
-			options.MigrationsFolder.Value,
-		))
-	}
-	if options.AuthTokenSecret.BeenSet {
-		fields = append(fields, zap.String(
-			"AUTH_TOKEN_SECRET",
-			options.AuthTokenSecret.Value,
-		))
-	}
-	if options.PublicCertKey.BeenSet {
-		fields = append(fields, zap.String(
-			"PUBLIC_KEY",
-			options.PublicCertKey.Value,
-		))
-	}
-	if options.PrivateKey.BeenSet {
-		fields = append(fields, zap.String(
-			"PRIVATE_KEY",
-			options.PrivateKey.Value,
-		))
-	}
-	if options.AuditLogPath.BeenSet {
-		fields = append(fields, zap.String(
-			"AUDIT_LOG_PATH",
-			options.AuditLogPath.Value,
-		))
-	}
-	if options.Config.BeenSet {
-		fields = append(fields, zap.String("CONFIG", options.Config.Value))
-	}
-	if len(fields) == 0 {
-		options.logger.Info("no environment variables were set")
-		return
-	}
-	options.logger.Info("environment variables", fields...)
-}
-func logConfigOptionsServer(options *OptionsServer) {
-	if options == nil {
-		return
-	}
-	fields := make([]zap.Field, 0)
-	if options.ServerAddress.BeenSet {
-		fields = append(fields, zap.String("server_address", options.ServerAddress.Value))
-	}
-	if options.DatabaseURI.BeenSet {
-		fields = append(fields, zap.String("database_uri", options.DatabaseURI.Value))
-	}
-	if options.MigrationsFolder.BeenSet {
-		fields = append(fields, zap.String(
-			"migrations_folder",
-			options.MigrationsFolder.Value,
-		))
-	}
-	if options.AuthTokenSecret.BeenSet {
-		fields = append(fields, zap.String(
-			"auth_token_secret",
-			options.AuthTokenSecret.Value,
-		))
-	}
-	if options.PublicCertKey.BeenSet {
-		fields = append(fields, zap.String(
-			"public_key",
-			options.PublicCertKey.Value,
-		))
-	}
-	if options.PrivateKey.BeenSet {
-		fields = append(fields, zap.String(
-			"private_key",
-			options.PrivateKey.Value,
-		))
-	}
-	if options.AuditLogPath.BeenSet {
-		fields = append(fields, zap.String(
-			"audit_log_path",
-			options.AuditLogPath.Value,
-		))
-	}
-	if len(fields) == 0 {
-		options.logger.Info("no config file options were set")
-		return
-	}
-	options.logger.Info("config file options", fields...)
+	ServerAddress    OptionalString `env:"RUN_ADDRESS" json:"server_address" command_arg:"a"`
+	DatabaseURI      OptionalString `env:"DATABASE_URI" json:"database_uri" command_arg:"d"`
+	MigrationsFolder OptionalString `env:"MIGRATIONS_FOLDER" json:"migrations_folder" command_arg:"m"`
+	AuthTokenSecret  OptionalString `env:"AUTH_TOKEN_SECRET" json:"auth_token_secret" command_arg:"s"`
+	PublicCertKey    OptionalString `env:"PUBLIC_CERT_KEY" json:"public_cert_key" command_arg:"public-key"`
+	PrivateKey       OptionalString `env:"PRIVATE_KEY" json:"private_key" command_arg:"private-key"`
+	AuditLogPath     OptionalString `env:"AUDIT_LOG_PATH" json:"audit_log_path" command_arg:"audit-log"`
+	Config           OptionalString `env:"CONFIG" json:"-" command_arg:"config"`
 }
 
 // ReadFlagsServer reads server configuration from command-line arguments and environment variables.
@@ -171,12 +37,12 @@ func ReadFlagsServer(args []string, logger *zap.Logger) (*OptionsServer, error) 
 	if err != nil {
 		return nil, fmt.Errorf("read command-line flags: %w", err)
 	}
-	logSetFlagsServer(cmdOptions)
+	logSetFlagsServer(cmdOptions, logger)
 	envOptions, err := getEnvOptionsServer(logger)
 	if err != nil {
 		return nil, fmt.Errorf("read environment variables: %w", err)
 	}
-	logSetEnvServer(envOptions)
+	logSetEnvServer(envOptions, logger)
 	var diskConfigOptions OptionsServer
 	if cmdOptions.Config.BeenSet || envOptions.Config.BeenSet {
 		// We need to read the config file before assembling the full consensus.
@@ -190,7 +56,7 @@ func ReadFlagsServer(args []string, logger *zap.Logger) (*OptionsServer, error) 
 		if err != nil {
 			return nil, fmt.Errorf("read config file: %w", err)
 		}
-		logConfigOptionsServer(&diskConfigOptions)
+		logConfigOptionsServer(&diskConfigOptions, logger)
 	}
 	finalOptions := OptionsServer{
 		ServerAddress: OptionalString{
@@ -225,7 +91,6 @@ func ReadFlagsServer(args []string, logger *zap.Logger) (*OptionsServer, error) 
 			Value:   "",
 			BeenSet: false,
 		},
-		logger: logger,
 	}
 	// Environment options have the highest priority,
 	// then command-line options, then disk config options.
@@ -234,22 +99,22 @@ func ReadFlagsServer(args []string, logger *zap.Logger) (*OptionsServer, error) 
 	mergeOptionsServer(&finalOptions, *envOptions)
 	return &finalOptions, nil
 }
+
 func getDiskConfigOptionsServer(filename string, logger *zap.Logger) (OptionsServer, error) {
 	if filename == "" {
-		return OptionsServer{logger: logger}, nil
+		return OptionsServer{}, nil
 	}
 	configBytes, err := os.ReadFile(filename)
 	if err != nil {
-		return OptionsServer{logger: logger}, err
+		return OptionsServer{}, err
 	}
-	options := OptionsServer{
-		logger: logger,
-	}
+	options := OptionsServer{}
 	if err = json.Unmarshal(configBytes, &options); err != nil {
-		return OptionsServer{logger: logger}, err
+		return OptionsServer{}, err
 	}
 	return options, nil
 }
+
 func mergeOptionsServer(mergeInto *OptionsServer, newValues OptionsServer) {
 	if newValues.ServerAddress.BeenSet {
 		mergeInto.ServerAddress = newValues.ServerAddress
@@ -285,18 +150,14 @@ func mergeOptionsServer(mergeInto *OptionsServer, newValues OptionsServer) {
 	}
 }
 func getEnvOptionsServer(logger *zap.Logger) (*OptionsServer, error) {
-	opt := OptionsServer{
-		logger: logger,
-	}
+	opt := OptionsServer{}
 	if err := env.Parse(&opt); err != nil {
 		return nil, err
 	}
 	return &opt, nil
 }
 func getOptionsServer(args []string, logger *zap.Logger) (*OptionsServer, error) {
-	opt := &OptionsServer{
-		logger: logger,
-	}
+	opt := &OptionsServer{}
 	fs := flag.NewFlagSet("gophkeeper-server", flag.ContinueOnError)
 	fs.SetOutput(io.Discard)
 	fs.Var(&opt.ServerAddress, "a", "адрес и порт запуска этого сервера")
