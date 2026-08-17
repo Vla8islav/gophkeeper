@@ -33,12 +33,12 @@ func ReadFlagsServer(args []string, logger *zap.Logger) (*OptionsServer, error) 
 	if logger == nil {
 		panic("config server logger is nil")
 	}
-	cmdOptions, err := getOptionsServer(args, logger)
+	cmdOptions, err := getOptionsServer(args)
 	if err != nil {
 		return nil, fmt.Errorf("read command-line flags: %w", err)
 	}
 	logSetFlagsServer(cmdOptions, logger)
-	envOptions, err := getEnvOptionsServer(logger)
+	envOptions, err := getEnvOptionsServer()
 	if err != nil {
 		return nil, fmt.Errorf("read environment variables: %w", err)
 	}
@@ -52,7 +52,7 @@ func ReadFlagsServer(args []string, logger *zap.Logger) (*OptionsServer, error) 
 		} else if cmdOptions.Config.BeenSet && cmdOptions.Config.Value != "" {
 			configFilename = cmdOptions.Config.Value
 		}
-		diskConfigOptions, err = getDiskConfigOptionsServer(configFilename, logger)
+		diskConfigOptions, err = getDiskConfigOptionsServer(configFilename)
 		if err != nil {
 			return nil, fmt.Errorf("read config file: %w", err)
 		}
@@ -100,7 +100,7 @@ func ReadFlagsServer(args []string, logger *zap.Logger) (*OptionsServer, error) 
 	return &finalOptions, nil
 }
 
-func getDiskConfigOptionsServer(filename string, logger *zap.Logger) (OptionsServer, error) {
+func getDiskConfigOptionsServer(filename string) (OptionsServer, error) {
 	if filename == "" {
 		return OptionsServer{}, nil
 	}
@@ -115,48 +115,14 @@ func getDiskConfigOptionsServer(filename string, logger *zap.Logger) (OptionsSer
 	return options, nil
 }
 
-func mergeOptionsServer(mergeInto *OptionsServer, newValues OptionsServer) {
-	if newValues.ServerAddress.BeenSet {
-		mergeInto.ServerAddress = newValues.ServerAddress
-		mergeInto.ServerAddress.BeenSet = true
-	}
-	if newValues.DatabaseURI.BeenSet {
-		mergeInto.DatabaseURI = newValues.DatabaseURI
-		mergeInto.DatabaseURI.BeenSet = true
-	}
-	if newValues.MigrationsFolder.BeenSet {
-		mergeInto.MigrationsFolder = newValues.MigrationsFolder
-		mergeInto.MigrationsFolder.BeenSet = true
-	}
-	if newValues.AuthTokenSecret.BeenSet {
-		mergeInto.AuthTokenSecret = newValues.AuthTokenSecret
-		mergeInto.AuthTokenSecret.BeenSet = true
-	}
-	if newValues.PublicCertKey.BeenSet {
-		mergeInto.PublicCertKey = newValues.PublicCertKey
-		mergeInto.PublicCertKey.BeenSet = true
-	}
-	if newValues.PrivateKey.BeenSet {
-		mergeInto.PrivateKey = newValues.PrivateKey
-		mergeInto.PrivateKey.BeenSet = true
-	}
-	if newValues.AuditLogPath.BeenSet {
-		mergeInto.AuditLogPath = newValues.AuditLogPath
-		mergeInto.AuditLogPath.BeenSet = true
-	}
-	if newValues.Config.BeenSet {
-		mergeInto.Config = newValues.Config
-		mergeInto.Config.BeenSet = true
-	}
-}
-func getEnvOptionsServer(logger *zap.Logger) (*OptionsServer, error) {
+func getEnvOptionsServer() (*OptionsServer, error) {
 	opt := OptionsServer{}
 	if err := env.Parse(&opt); err != nil {
 		return nil, err
 	}
 	return &opt, nil
 }
-func getOptionsServer(args []string, logger *zap.Logger) (*OptionsServer, error) {
+func getOptionsServer(args []string) (*OptionsServer, error) {
 	opt := &OptionsServer{}
 	fs := flag.NewFlagSet("gophkeeper-server", flag.ContinueOnError)
 	fs.SetOutput(io.Discard)
