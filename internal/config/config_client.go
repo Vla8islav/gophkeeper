@@ -17,80 +17,10 @@ import (
 //
 // order of precedence: environment vars, command-line flags, config file, defaults.
 type OptionsClient struct {
-	ServerAddress OptionalString `env:"SERVER_ADDRESS" json:"server_address"`
-	CACertPath    OptionalString `env:"CA_CERT" json:"ca_cert"`
-	TokenFile     OptionalString `env:"TOKEN_FILE" json:"token_file"`
-	Config        OptionalString `env:"CONFIG" json:"-"`
-	logger        *zap.Logger
-}
-
-func logSetFlagsClient(options *OptionsClient) {
-	if options == nil {
-		return
-	}
-	fields := make([]zap.Field, 0)
-	if options.ServerAddress.BeenSet {
-		fields = append(fields, zap.String("-a", options.ServerAddress.Value))
-	}
-	if options.CACertPath.BeenSet {
-		fields = append(fields, zap.String("-ca", options.CACertPath.Value))
-	}
-	if options.TokenFile.BeenSet {
-		fields = append(fields, zap.String("-t", options.TokenFile.Value))
-	}
-	if options.Config.BeenSet {
-		fields = append(fields, zap.String("-config", options.Config.Value))
-	}
-	if len(fields) == 0 {
-		options.logger.Info("no command-line flags were set")
-		return
-	}
-	options.logger.Info("command line options", fields...)
-}
-
-func logSetEnvClient(options *OptionsClient) {
-	if options == nil {
-		return
-	}
-	fields := make([]zap.Field, 0)
-	if options.ServerAddress.BeenSet {
-		fields = append(fields, zap.String("SERVER_ADDRESS", options.ServerAddress.Value))
-	}
-	if options.CACertPath.BeenSet {
-		fields = append(fields, zap.String("CA_CERT", options.CACertPath.Value))
-	}
-	if options.TokenFile.BeenSet {
-		fields = append(fields, zap.String("TOKEN_FILE", options.TokenFile.Value))
-	}
-	if options.Config.BeenSet {
-		fields = append(fields, zap.String("CONFIG", options.Config.Value))
-	}
-	if len(fields) == 0 {
-		options.logger.Info("no environment variables were set")
-		return
-	}
-	options.logger.Info("environment variables", fields...)
-}
-
-func logConfigOptionsClient(options *OptionsClient) {
-	if options == nil {
-		return
-	}
-	fields := make([]zap.Field, 0)
-	if options.ServerAddress.BeenSet {
-		fields = append(fields, zap.String("server_address", options.ServerAddress.Value))
-	}
-	if options.CACertPath.BeenSet {
-		fields = append(fields, zap.String("ca_cert", options.CACertPath.Value))
-	}
-	if options.TokenFile.BeenSet {
-		fields = append(fields, zap.String("token_file", options.TokenFile.Value))
-	}
-	if len(fields) == 0 {
-		options.logger.Info("no config file options were set")
-		return
-	}
-	options.logger.Info("config file options", fields...)
+	ServerAddress OptionalString `env:"SERVER_ADDRESS" json:"server_address" command_arg:"base_url"`
+	CACertPath    OptionalString `env:"CA_CERT" json:"ca_cert" command_arg:"ca_cert"`
+	TokenFile     OptionalString `env:"TOKEN_FILE" json:"token_file" command_arg:"token_file"`
+	Config        OptionalString `env:"CONFIG" json:"-" command_arg:"config"`
 }
 
 // ReadFlagsClient reads client configuration from command-line arguments and environment variables.
@@ -100,16 +30,16 @@ func ReadFlagsClient(args []string, logger *zap.Logger) (*OptionsClient, []strin
 	if logger == nil {
 		panic("config client logger is nil")
 	}
-	cmdOptions, rest, err := getOptionsClient(args, logger)
+	cmdOptions, rest, err := getOptionsClient(args)
 	if err != nil {
 		return nil, nil, fmt.Errorf("read command-line flags: %w", err)
 	}
-	logSetFlagsClient(cmdOptions)
-	envOptions, err := getEnvOptionsClient(logger)
+	logSetFlags(cmdOptions, logger)
+	envOptions, err := getEnvOptionsClient()
 	if err != nil {
 		return nil, nil, fmt.Errorf("read environment variables: %w", err)
 	}
-	logSetEnvClient(envOptions)
+	logSetEnv(envOptions, logger)
 	var diskConfigOptions OptionsClient
 	if cmdOptions.Config.BeenSet || envOptions.Config.BeenSet {
 		var configFilename string
@@ -118,11 +48,11 @@ func ReadFlagsClient(args []string, logger *zap.Logger) (*OptionsClient, []strin
 		} else if cmdOptions.Config.BeenSet && cmdOptions.Config.Value != "" {
 			configFilename = cmdOptions.Config.Value
 		}
-		diskConfigOptions, err = getDiskConfigOptionsClient(configFilename, logger)
+		diskConfigOptions, err = getDiskConfigOptionsClient(configFilename)
 		if err != nil {
 			return nil, nil, fmt.Errorf("read config file: %w", err)
 		}
-		logConfigOptionsClient(&diskConfigOptions)
+		logConfigOptions(&diskConfigOptions, logger)
 	}
 	finalOptions := OptionsClient{
 		ServerAddress: OptionalString{
@@ -137,64 +67,38 @@ func ReadFlagsClient(args []string, logger *zap.Logger) (*OptionsClient, []strin
 			Value:   defaultClientTokenFile(),
 			BeenSet: false,
 		},
-		logger: logger,
 	}
-	mergeOptionsClient(&finalOptions, diskConfigOptions)
-	mergeOptionsClient(&finalOptions, *cmdOptions)
-	mergeOptionsClient(&finalOptions, *envOptions)
+	mergeOptions(&finalOptions, diskConfigOptions)
+	mergeOptions(&finalOptions, *cmdOptions)
+	mergeOptions(&finalOptions, *envOptions)
 	return &finalOptions, rest, nil
 }
 
-func getDiskConfigOptionsClient(filename string, logger *zap.Logger) (OptionsClient, error) {
+func getDiskConfigOptionsClient(filename string) (OptionsClient, error) {
 	if filename == "" {
-		return OptionsClient{logger: logger}, nil
+		return OptionsClient{}, nil
 	}
 	configBytes, err := os.ReadFile(filename)
 	if err != nil {
-		return OptionsClient{logger: logger}, err
+		return OptionsClient{}, err
 	}
-	options := OptionsClient{
-		logger: logger,
-	}
+	options := OptionsClient{}
 	if err = json.Unmarshal(configBytes, &options); err != nil {
-		return OptionsClient{logger: logger}, err
+		return OptionsClient{}, err
 	}
 	return options, nil
 }
 
-func mergeOptionsClient(mergeInto *OptionsClient, newValues OptionsClient) {
-	if newValues.ServerAddress.BeenSet {
-		mergeInto.ServerAddress = newValues.ServerAddress
-		mergeInto.ServerAddress.BeenSet = true
-	}
-	if newValues.CACertPath.BeenSet {
-		mergeInto.CACertPath = newValues.CACertPath
-		mergeInto.CACertPath.BeenSet = true
-	}
-	if newValues.TokenFile.BeenSet {
-		mergeInto.TokenFile = newValues.TokenFile
-		mergeInto.TokenFile.BeenSet = true
-	}
-	if newValues.Config.BeenSet {
-		mergeInto.Config = newValues.Config
-		mergeInto.Config.BeenSet = true
-	}
-}
-
-func getEnvOptionsClient(logger *zap.Logger) (*OptionsClient, error) {
-	opt := OptionsClient{
-		logger: logger,
-	}
+func getEnvOptionsClient() (*OptionsClient, error) {
+	opt := OptionsClient{}
 	if err := env.Parse(&opt); err != nil {
 		return nil, err
 	}
 	return &opt, nil
 }
 
-func getOptionsClient(args []string, logger *zap.Logger) (*OptionsClient, []string, error) {
-	opt := &OptionsClient{
-		logger: logger,
-	}
+func getOptionsClient(args []string) (*OptionsClient, []string, error) {
+	opt := &OptionsClient{}
 	fs := flag.NewFlagSet("gophkeeper-client", flag.ContinueOnError)
 	fs.SetOutput(io.Discard)
 	fs.Var(&opt.ServerAddress, "base-url", "базовый URL сервера, например https://localhost:8080")

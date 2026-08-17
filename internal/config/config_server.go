@@ -37,12 +37,12 @@ func ReadFlagsServer(args []string, logger *zap.Logger) (*OptionsServer, error) 
 	if err != nil {
 		return nil, fmt.Errorf("read command-line flags: %w", err)
 	}
-	logSetFlagsServer(cmdOptions, logger)
+	logSetFlags(cmdOptions, logger)
 	envOptions, err := getEnvOptionsServer()
 	if err != nil {
 		return nil, fmt.Errorf("read environment variables: %w", err)
 	}
-	logSetEnvServer(envOptions, logger)
+	logSetEnv(envOptions, logger)
 	var diskConfigOptions OptionsServer
 	if cmdOptions.Config.BeenSet || envOptions.Config.BeenSet {
 		// We need to read the config file before assembling the full consensus.
@@ -56,7 +56,7 @@ func ReadFlagsServer(args []string, logger *zap.Logger) (*OptionsServer, error) 
 		if err != nil {
 			return nil, fmt.Errorf("read config file: %w", err)
 		}
-		logConfigOptionsServer(&diskConfigOptions, logger)
+		logConfigOptions(&diskConfigOptions, logger)
 	}
 	finalOptions := OptionsServer{
 		ServerAddress: OptionalString{
@@ -94,9 +94,9 @@ func ReadFlagsServer(args []string, logger *zap.Logger) (*OptionsServer, error) 
 	}
 	// Environment options have the highest priority,
 	// then command-line options, then disk config options.
-	mergeOptionsServer(&finalOptions, diskConfigOptions)
-	mergeOptionsServer(&finalOptions, *cmdOptions)
-	mergeOptionsServer(&finalOptions, *envOptions)
+	mergeOptions(&finalOptions, diskConfigOptions)
+	mergeOptions(&finalOptions, *cmdOptions)
+	mergeOptions(&finalOptions, *envOptions)
 	return &finalOptions, nil
 }
 

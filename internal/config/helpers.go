@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func logSetFlagsServer[T OptionsServer](options *T, logger *zap.Logger) {
+func logSetFlags[T OptionsServer | OptionsClient](options *T, logger *zap.Logger) {
 	if options == nil {
 		return
 	}
@@ -37,7 +37,7 @@ func logSetFlagsServer[T OptionsServer](options *T, logger *zap.Logger) {
 	logger.Info("command line options", fields...)
 }
 
-func logSetEnvServer[T OptionsServer](options *T, logger *zap.Logger) {
+func logSetEnv[T OptionsServer | OptionsClient](options *T, logger *zap.Logger) {
 	if options == nil {
 		return
 	}
@@ -69,7 +69,7 @@ func logSetEnvServer[T OptionsServer](options *T, logger *zap.Logger) {
 	logger.Info("environment variables", fields...)
 }
 
-func logConfigOptionsServer[T OptionsServer](options *T, logger *zap.Logger) {
+func logConfigOptions[T OptionsServer | OptionsClient](options *T, logger *zap.Logger) {
 	if options == nil {
 		return
 	}
@@ -100,4 +100,24 @@ func logConfigOptionsServer[T OptionsServer](options *T, logger *zap.Logger) {
 		return
 	}
 	logger.Info("config file options", fields...)
+}
+
+func mergeOptions[T OptionsServer | OptionsClient](mergeInto *T, newValues T) {
+	t := reflect.TypeOf(mergeInto).Elem()
+	vInto := reflect.ValueOf(mergeInto).Elem()
+	vNew := reflect.ValueOf(newValues)
+	for i := 0; i < t.NumField(); i++ {
+		fieldValueInto := vInto.Field(i)
+		intoBeenSet := fieldValueInto.FieldByName("BeenSet")
+		intoValue := fieldValueInto.FieldByName("Value")
+
+		fieldValueNew := vNew.Field(i)
+		newBeenSet := fieldValueNew.FieldByName("BeenSet")
+		newValue := fieldValueNew.FieldByName("Value")
+
+		if newBeenSet.Bool() {
+			intoValue.Set(newValue)
+			intoBeenSet.Set(newBeenSet)
+		}
+	}
 }
