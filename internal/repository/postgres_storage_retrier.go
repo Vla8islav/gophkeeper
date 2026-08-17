@@ -4,9 +4,24 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 )
 
-const maxRetryAttempts = 3
+const (
+	maxRetryAttempts = 3
+	baseRetryDelay   = 50 * time.Millisecond
+)
+
+// backoff provides exponential backoff with a base delay of 50ms.
+func backoff(ctx context.Context, attempt int) error {
+	delay := baseRetryDelay << (attempt - 1)
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-time.After(delay):
+		return nil
+	}
+}
 
 func (s *PostgresStorage) withRetry(ctx context.Context, executeFunction func() error) error {
 	var lastErr error
@@ -23,6 +38,9 @@ func (s *PostgresStorage) withRetry(ctx context.Context, executeFunction func() 
 
 		if s.isRetriablePostgresError(err) && attempt < maxRetryAttempts {
 			lastErr = err
+			if waitErr := backoff(ctx, attempt); waitErr != nil {
+				return waitErr // context cancelled during the wait
+			}
 			continue
 		}
 
